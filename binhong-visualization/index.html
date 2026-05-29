@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <title>黄宾虹年谱 · 时空编年可视化</title>
+    <!-- SVG filter definitions for ink-wash effects -->
+    <svg style="display:none">
+      <filter id="ink-filter">
+        <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="5" result="noise"/>
+        <feDisplacementMap in="SourceGraphic" in2="noise" scale="3"/>
+      </filter>
+      <filter id="brush-edge">
+        <feTurbulence type="fractalNoise" baseFrequency="0.05" numOctaves="3"/>
+        <feDisplacementMap in="SourceGraphic" scale="2"/>
+      </filter>
+    </svg>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
