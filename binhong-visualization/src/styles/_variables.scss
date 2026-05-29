@@ -1,0 +1,22 @@
+// Ink-wash color system
+$rice-paper: #F4F1EA;
+$ink-black: #1A1A1A;
+$ink-dark: #2C2C2C;
+$ink-medium: #5A5A5A;
+$ink-light: #8B8B8B;
+$ink-faint: #C4C0B6;
+$cinnabar: #C24F4F;
+$cinnabar-light: #D47A7A;
+$parchment-shadow: #E8E3D8;
+$age-yellow: #D4C9A8;
+
+// Layout dimensions
+$screen-width: 1920px;
+$screen-height: 1080px;
+$timeline-height: 108px;
+$main-height: calc(#{$screen-height} - #{$timeline-height});
+
+// Typography
+$font-calligraphy: "STKaiti", "KaiTi", "楷体", serif;
+$font-body: "Songti SC", "SimSun", "宋体", serif;
+$font-sans: "PingFang SC", "Microsoft YaHei", sans-serif;

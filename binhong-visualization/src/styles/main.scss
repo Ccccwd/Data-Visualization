@@ -1,0 +1,23 @@
+@use 'variables' as *;
+@use 'ink-wash';
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  width: $screen-width;
+  height: $screen-height;
+  overflow: hidden;
+  font-family: $font-sans;
+  background-color: $rice-paper;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#app {
+  width: 100%;
+  height: 100%;
+}
