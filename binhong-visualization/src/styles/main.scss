@@ -8,11 +8,11 @@
 }
 
 html, body {
-  width: $screen-width;
-  height: $screen-height;
+  width: 100vw;
+  height: 100vh;
   overflow: hidden;
   font-family: $font-sans;
-  background-color: $rice-paper;
+  background-color: $ink-burnt;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }

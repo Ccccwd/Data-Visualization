@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>地图调试</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
+<style>
+body { margin:0; background: #D4C8B4; }
+#test { width:960px; height:972px; }
+</style>
+</head>
+<body>
+<div id="test"></div>
+<script>
+(async function(){
+  console.log('1. Loading GeoJSON...');
+  let geoJson;
+  try {
+    const r = await fetch('/data/china.json');
+    geoJson = await r.json();
+    console.log('2. GeoJSON loaded, features:', geoJson.features.length);
+  } catch(e) {
+    console.error('GeoJSON failed:', e);
+    return;
+  }
+
+  echarts.registerMap('china', geoJson);
+  console.log('3. Map registered');
+
+  const chart = echarts.init(document.getElementById('test'), null, {renderer:'svg'});
+  console.log('4. Chart init done, container size:',
+    document.getElementById('test').offsetWidth, 'x', document.getElementById('test').offsetHeight);
+
+  const option = {
+    backgroundColor: 'transparent',
+    geo: {
+      map: 'china',
+      roam: false,
+      center: [110, 30],
+      zoom: 4,
+      aspectScale: 0.78,
+      itemStyle: {
+        areaColor: 'rgba(74,67,58,0.05)',
+        borderColor: 'rgba(74,67,58,0.2)',
+        borderWidth: 0.8
+      },
+      emphasis: { disabled: true },
+      select: { disabled: true },
+      label: { show: false }
+    },
+    series: [{
+      type: 'scatter',
+      coordinateSystem: 'geo',
+      data: [
+        { name:'上海', value:[121.47,31.23], symbolSize:12, itemStyle:{color:'rgba(74,67,58,0.5)'},
+          label:{show:true, formatter:'上海', color:'rgba(74,67,58,0.6)', fontSize:9} },
+        { name:'桂林', value:[110.29,25.27], symbolSize:28, symbol:'rect',
+          itemStyle:{color:'rgba(184,58,46,0.9)', borderColor:'#B83A2E', borderWidth:2},
+          label:{show:true, position:'inside', formatter:'桂林', color:'#B83A2E', fontSize:10} },
+        { name:'北京', value:[116.40,39.90], symbolSize:12, itemStyle:{color:'rgba(74,67,58,0.5)'},
+          label:{show:true, formatter:'北京', color:'rgba(74,67,58,0.6)', fontSize:9} },
+      ]
+    },
+    {
+      type: 'lines',
+      coordinateSystem: 'geo',
+      silent: true,
+      data: [{ coords: [[121.47,31.23],[110.29,25.27]], lineStyle:{color:'#B83A2E', width:2, type:'dashed', opacity:0.6, curveness:0.15} }],
+      effect: { show:true, period:6, trailLength:0.4, symbol:'circle', symbolSize:4, color:'#B83A2E' }
+    }]
+  };
+
+  try {
+    chart.setOption(option, true);
+    console.log('5. setOption succeeded');
+  } catch(e) {
+    console.error('setOption failed:', e);
+  }
+})();
+</script>
+</body>
+</html>

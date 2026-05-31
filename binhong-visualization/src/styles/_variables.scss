@@ -1,22 +1,38 @@
-// Ink-wash color system
-$rice-paper: #F4F1EA;
-$ink-black: #1A1A1A;
-$ink-dark: #2C2C2C;
-$ink-medium: #5A5A5A;
-$ink-light: #8B8B8B;
-$ink-faint: #C4C0B6;
-$cinnabar: #C24F4F;
-$cinnabar-light: #D47A7A;
-$parchment-shadow: #E8E3D8;
-$age-yellow: #D4C9A8;
+// ═══════════════════════════════════════
+// Ink-wash Color System (墨分五色)
+// ═══════════════════════════════════════
+$ink-burnt: #0D0D0D;
+$ink-heavy: #1A1714;
+$ink-nong: #2A2520;
+$ink-zhong: #4A433A;
+$ink-dan: #7A7168;
+$ink-wash: #A89E92;
+$silk: #DDD4C4;
 
-// Layout dimensions
+// ═══ Paper & Parchment Tones ═══
+$rice-paper: #F4F1EA;
+$aged-paper: #D4C8B4;
+$parchment: #C8BAA4;
+$parchment-dark: #B8A890;
+
+// ═══ Accent Colors ═══
+$cinnabar: #B83A2E;
+$cinnabar-glow: #D44838;
+$cinnabar-light: #E06050;
+$gold: #A8884A;
+$gold-dim: #8A7040;
+$jade: #5A8A6A;
+$frame-wood: #6B5840;
+$frame-dark: #4A3D2E;
+
+// ═══ Layout Dimensions ═══
 $screen-width: 1920px;
 $screen-height: 1080px;
-$timeline-height: 108px;
+$timeline-height: 130px;
 $main-height: calc(#{$screen-height} - #{$timeline-height});
 
-// Typography
-$font-calligraphy: "STKaiti", "KaiTi", "楷体", serif;
-$font-body: "Songti SC", "SimSun", "宋体", serif;
-$font-sans: "PingFang SC", "Microsoft YaHei", sans-serif;
+// ═══ Typography ═══
+$font-display: 'Ma Shan Zheng', cursive;
+$font-body: 'Noto Serif SC', 'Songti SC', 'SimSun', serif;
+$font-label: 'ZCOOL XiaoWei', serif;
+$font-sans: 'Noto Sans SC', 'Microsoft YaHei', sans-serif;

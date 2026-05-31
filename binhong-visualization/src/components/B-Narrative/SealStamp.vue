@@ -1,11 +1,14 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 
-const props = defineProps<{ name: string }>()
+const props = withDefaults(defineProps<{ name: string; delay?: number }>(), {
+  delay: 0,
+})
+
 const visible = ref(false)
 
 onMounted(() => {
-  setTimeout(() => { visible.value = true }, 100)
+  setTimeout(() => { visible.value = true }, 100 + props.delay * 1000)
 })
 </script>
 
@@ -21,52 +24,40 @@ onMounted(() => {
 @use '../../styles/variables' as *;
 
 .seal-stamp {
-  width: 56px;
-  height: 56px;
+  width: 48px;
+  height: 48px;
   opacity: 0;
-  transform: scale(2) rotate(-15deg);
+  transform: scale(2) rotate(-12deg);
   transition: none;
 
   &.visible {
-    animation: seal-stamp 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    animation: sealPress .6s cubic-bezier(.34, 1.56, .64, 1) forwards;
   }
 
   &__inner {
     width: 100%;
     height: 100%;
     border: 2px solid $cinnabar;
-    border-radius: 4px;
+    border-radius: 2px;
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     justify-content: center;
-    padding: 4px;
+    padding: 4px 5px;
   }
 }
 
 .seal-char {
-  font-family: $font-calligraphy;
-  font-size: 14px;
+  font-family: $font-display;
+  font-size: 10px;
   color: $cinnabar;
-  line-height: 1;
-  writing-mode: vertical-rl;
+  line-height: 1.1;
 }
 
-@keyframes seal-stamp {
-  0% {
-    opacity: 0;
-    transform: scale(2) rotate(-15deg);
-  }
-  50% {
-    opacity: 1;
-    transform: scale(0.95) rotate(2deg);
-  }
-  75% {
-    transform: scale(1.05) rotate(-1deg);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1) rotate(0deg);
-  }
+@keyframes sealPress {
+  0%   { opacity: 0; transform: scale(2) rotate(-12deg); }
+  45%  { opacity: 1; transform: scale(.92) rotate(1deg); }
+  65%  { transform: scale(1.06) rotate(-.5deg); }
+  100% { opacity: .85; transform: scale(1) rotate(0); }
 }
 </style>

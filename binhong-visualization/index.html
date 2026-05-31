@@ -5,16 +5,26 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=1920, height=1080" />
     <title>黄宾虹年谱 · 时空编年可视化</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Sans+SC:wght@300;400;500&family=Noto+Serif+SC:wght@400;600;700&family=ZCOOL+XiaoWei&display=swap" rel="stylesheet">
     <!-- SVG filter definitions for ink-wash effects -->
-    <svg style="display:none">
-      <filter id="ink-filter">
-        <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="5" result="noise"/>
-        <feDisplacementMap in="SourceGraphic" in2="noise" scale="3"/>
-      </filter>
-      <filter id="brush-edge">
-        <feTurbulence type="fractalNoise" baseFrequency="0.05" numOctaves="3"/>
-        <feDisplacementMap in="SourceGraphic" scale="2"/>
-      </filter>
+    <svg style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true">
+      <defs>
+        <filter id="ink-spread-filter">
+          <feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="4" result="noise"/>
+          <feDisplacementMap in="SourceGraphic" in2="noise" scale="2" xChannelSelector="R" yChannelSelector="G"/>
+        </filter>
+        <filter id="brush-edge-filter">
+          <feTurbulence type="fractalNoise" baseFrequency="0.05" numOctaves="3" result="noise"/>
+          <feDisplacementMap in="SourceGraphic" in2="noise" scale="2" xChannelSelector="R" yChannelSelector="G"/>
+        </filter>
+        <filter id="landmark-texture">
+          <feTurbulence type="fractalNoise" baseFrequency="0.08" numOctaves="2" result="n"/>
+          <feDisplacementMap in="SourceGraphic" in2="n" scale="1.5"/>
+        </filter>
+      </defs>
     </svg>
   </head>
   <body>

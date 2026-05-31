@@ -1,92 +1,127 @@
 @use 'variables' as *;
 
+// ═══════════════════════════════════════
+// Ink-wash Utility Classes & Animations
+// ═══════════════════════════════════════
+
+// Ink dot marker
 .ink-dot {
   width: 30px;
   height: 30px;
   border-radius: 50%;
   background: radial-gradient(circle,
-    rgba(44, 44, 44, 0.9) 0%,
-    rgba(90, 90, 90, 0.6) 40%,
-    rgba(139, 139, 139, 0.2) 70%,
+    rgba($ink-heavy, 0.9) 0%,
+    rgba($ink-zhong, 0.6) 40%,
+    rgba($ink-wash, 0.2) 70%,
     transparent 100%
   );
-  filter: url(#ink-filter);
 
   &.active {
     animation: ink-spread 1.5s ease-out;
   }
 
-  &--large {
-    width: 50px;
-    height: 50px;
-  }
+  &--large { width: 50px; height: 50px; }
 }
 
+// Ink brush SVG line
 .ink-brush-line {
-  stroke: rgba(44, 44, 44, 0.4);
+  stroke: rgba($ink-heavy, 0.4);
   stroke-width: 2;
   stroke-linecap: round;
   fill: none;
-  filter: url(#brush-edge);
-}
-
-@keyframes ink-spread {
-  0% {
-    transform: scale(0.3);
-    opacity: 0;
-  }
-  50% {
-    transform: scale(1.2);
-    opacity: 0.8;
-  }
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-}
-
-@keyframes seal-stamp {
-  0% {
-    transform: scale(2) rotate(-15deg);
-    opacity: 0;
-  }
-  60% {
-    transform: scale(0.95) rotate(2deg);
-    opacity: 1;
-  }
-  80% {
-    transform: scale(1.05) rotate(-1deg);
-  }
-  100% {
-    transform: scale(1) rotate(0deg);
-    opacity: 1;
-  }
-}
-
-@keyframes fade-in-up {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-// Custom scrollbar hiding
-.hide-scrollbar {
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-  &::-webkit-scrollbar {
-    display: none;
-  }
+  filter: url(#brush-edge-filter);
 }
 
 // Parchment texture background
 .parchment-bg {
   background-color: $rice-paper;
   background-image:
-    radial-gradient(ellipse at 20% 50%, rgba(212, 201, 168, 0.3) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 20%, rgba(228, 223, 212, 0.4) 0%, transparent 50%);
+    radial-gradient(ellipse at 20% 50%, rgba($aged-paper, 0.3) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba($parchment, 0.4) 0%, transparent 50%);
+}
+
+// Hide scrollbar utility
+.hide-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar { display: none; }
+}
+
+// Thin custom scrollbar for document areas
+.thin-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: $ink-wash transparent;
+  &::-webkit-scrollbar { width: 2px; }
+  &::-webkit-scrollbar-track { background: transparent; }
+  &::-webkit-scrollbar-thumb { background: $ink-zhong; border-radius: 1px; }
+}
+
+// Corner ornaments (gold L-shape)
+.corner-ornament {
+  position: absolute;
+  width: 28px;
+  height: 28px;
+  z-index: 5;
+  pointer-events: none;
+
+  &::before, &::after {
+    content: '';
+    position: absolute;
+    background: $gold;
+    opacity: 0.22;
+  }
+
+  &--tl {
+    top: 18px; left: 18px;
+    &::before { top: 0; left: 0; width: 28px; height: 1.5px; }
+    &::after  { top: 0; left: 0; width: 1.5px; height: 28px; }
+  }
+  &--tr {
+    top: 18px; right: 18px;
+    &::before { top: 0; right: 0; width: 28px; height: 1.5px; }
+    &::after  { top: 0; right: 0; width: 1.5px; height: 28px; }
+  }
+  &--bl {
+    bottom: 18px; left: 18px;
+    &::before { bottom: 0; left: 0; width: 28px; height: 1.5px; }
+    &::after  { bottom: 0; left: 0; width: 1.5px; height: 28px; }
+  }
+  &--br {
+    bottom: 18px; right: 18px;
+    &::before { bottom: 0; right: 0; width: 28px; height: 1.5px; }
+    &::after  { bottom: 0; right: 0; width: 1.5px; height: 28px; }
+  }
+}
+
+// Gradient separator line
+.doc-separator {
+  width: 100%;
+  height: 1px;
+  flex-shrink: 0;
+  background: linear-gradient(to right, transparent, rgba($frame-wood, 0.22) 18%, rgba($frame-wood, 0.22) 82%, transparent);
+}
+
+// ═══ Keyframe Animations ═══
+
+@keyframes ink-spread {
+  0%   { transform: scale(0.3); opacity: 0; }
+  50%  { transform: scale(1.2); opacity: 0.8; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes seal-press {
+  0%   { opacity: 0; transform: scale(2) rotate(-12deg); }
+  45%  { opacity: 1; transform: scale(0.92) rotate(1deg); }
+  65%  { transform: scale(1.06) rotate(-0.5deg); }
+  100% { opacity: 0.85; transform: scale(1) rotate(0); }
+}
+
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes ink-float {
+  0%, 100% { transform: translateY(0) scale(1); opacity: 0.03; }
+  50%      { transform: translateY(-8px) scale(1.2); opacity: 0.06; }
 }

@@ -51,10 +51,10 @@ export const useGlobalStore = defineStore('global', () => {
   })
 
   const activeLocations = computed(() => {
-    const locMap = new Map<string, [number, number] | null>()
+    const locMap = new Map<string, [number, number]>()
     filteredEntries.value.forEach(e => {
       e.locations.forEach(l => {
-        if (!locMap.has(l.name)) {
+        if (!locMap.has(l.name) && l.coords) {
           locMap.set(l.name, l.coords)
         }
       })
