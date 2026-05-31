@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1920, initial-scale=1">
+<title>黄宾虹年谱 · 时空编年可视化 · 全局设计稿</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Sans+SC:wght@300;400;500&family=Noto+Serif+SC:wght@400;600;700&family=ZCOOL+XiaoWei&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --ink-burnt:#0D0D0D;--ink-heavy:#1A1714;--ink-nong:#2A2520;--ink-zhong:#4A433A;
+  --ink-dan:#7A7168;--ink-wash:#A89E92;--silk:#DDD4C4;
+  --aged-paper:#D4C8B4;--parchment:#C8BAA4;--parchment-dark:#B8A890;--rice-paper:#F4F1EA;
+  --frame-wood:#6B5840;--frame-dark:#4A3D2E;
+  --cinnabar:#B83A2E;--cinnabar-glow:#D44838;--cinnabar-light:#E06050;
+  --gold:#A8884A;--gold-dim:#8A7040;--jade:#5A8A6A;
+  --font-display:'Ma Shan Zheng',cursive;
+  --font-body:'Noto Serif SC',serif;
+  --font-label:'ZCOOL XiaoWei',serif;
+  --font-sans:'Noto Sans SC',sans-serif;
+}
+html,body{width:100vw;height:100vh;overflow:hidden;background:var(--ink-burnt);font-family:var(--font-body);-webkit-font-smoothing:antialiased}
+.viewport-scale{width:1920px;height:1080px;transform-origin:top left;position:absolute;top:0;left:0}
+.svg-filters{position:absolute;width:0;height:0;overflow:hidden}
+
+/* ═══ LOADING ═══ */
+.loading-screen{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:var(--ink-burnt);animation:loadFade 1s ease 3s forwards}
+.ink-splash{width:160px;height:160px;border-radius:50%;background:radial-gradient(circle,rgba(212,200,180,.95) 0%,rgba(168,158,146,.5) 40%,transparent 70%);animation:inkExp 2.5s cubic-bezier(.25,.46,.45,.94) forwards}
+.loading-text{position:absolute;bottom:38%;color:var(--silk);font-family:var(--font-display);font-size:32px;letter-spacing:16px;opacity:0;animation:textRev 1s ease .8s forwards}
+@keyframes inkExp{0%{transform:scale(0);opacity:0}30%{opacity:1}100%{transform:scale(14);opacity:.06}}
+@keyframes textRev{0%{opacity:0;letter-spacing:28px}100%{opacity:.5;letter-spacing:16px}}
+@keyframes loadFade{to{opacity:0;pointer-events:none}}
+
+/* ═══ DASHBOARD GRID ═══ */
+.dashboard{
+  width:1920px;height:1080px;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  grid-template-rows:1fr 1fr 100px;
+  grid-template-areas:"map narrative""map graph""timeline timeline";
+  position:relative;overflow:hidden;
+  background:var(--parchment);
+  background-image:
+    url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.03'/%3E%3C/svg%3E"),
+    radial-gradient(ellipse at 20% 30%,rgba(168,136,74,.08) 0%,transparent 50%),
+    radial-gradient(ellipse at 80% 70%,rgba(107,88,64,.06) 0%,transparent 45%);
+  opacity:0;animation:dashReveal 1s ease 2.5s forwards;
+}
+@keyframes dashReveal{to{opacity:1}}
+
+/* Dividers */
+.dashboard::before{content:'';position:absolute;top:0;bottom:100px;left:50%;width:4px;transform:translateX(-2px);background:linear-gradient(to bottom,transparent,rgba(74,61,46,.35) 12%,rgba(74,61,46,.35) 88%,transparent);z-index:50}
+.dashboard::after{content:'';position:absolute;top:0;bottom:100px;left:50%;width:1px;transform:translateX(4px);background:linear-gradient(to bottom,transparent,rgba(74,61,46,.18) 12%,rgba(74,61,46,.18) 88%,transparent);z-index:50}
+.divider-h{position:absolute;top:calc((1080px - 100px)/2);left:50%;right:0;height:4px;z-index:50;background:linear-gradient(to right,rgba(74,61,46,.06),rgba(74,61,46,.3) 15%,rgba(74,61,46,.3) 85%,rgba(74,61,46,.06))}
+.divider-h::after{content:'';position:absolute;top:4px;left:0;right:0;height:1px;background:linear-gradient(to right,transparent,rgba(74,61,46,.12) 15%,rgba(74,61,46,.12) 85%,transparent)}
+
+/* ═══════════════════════════════════
+   A区: INK MAP
+   ═══════════════════════════════════ */
+.region-map{grid-area:map;position:relative;overflow:hidden;background:var(--aged-paper)}
+
+#inkMapChart{width:100%;height:100%;z-index:2;filter:url(#map-ink-filter)}
+
+.map-vignette{position:absolute;inset:0;pointer-events:none;z-index:400;
+  background:radial-gradient(ellipse 70% 65% at 48% 45%,transparent 0%,transparent 50%,rgba(184,168,144,.2) 63%,rgba(184,168,144,.45) 78%,rgba(184,168,144,.7) 90%,rgba(168,158,146,.85) 100%)}
+.map-grain{position:absolute;inset:0;pointer-events:none;z-index:410;opacity:.03;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='5' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+.map-frame{position:absolute;inset:16px;border:1px solid rgba(107,88,64,.14);z-index:415;pointer-events:none}
+.map-frame-inner{position:absolute;inset:20px;border:1px solid rgba(107,88,64,.07);z-index:415;pointer-events:none}
+.region-title{position:absolute;top:18px;left:24px;z-index:420;font-family:var(--font-display);font-size:20px;color:var(--ink-dan);opacity:.5;letter-spacing:6px;pointer-events:none}
+.region-title-sub{font-family:var(--font-label);font-size:10px;color:var(--ink-dan);opacity:.4;letter-spacing:3px;margin-top:4px}
+.map-compass{position:absolute;bottom:28px;right:28px;z-index:420;width:52px;height:52px;opacity:.3;pointer-events:none}
+.map-year-watermark{position:absolute;top:18px;right:28px;z-index:420;pointer-events:none}
+.map-year-text{font-family:var(--font-display);font-size:48px;color:var(--ink-heavy);opacity:.04;line-height:1}
+.map-year-ganzhi{font-family:var(--font-display);font-size:12px;color:var(--cinnabar);opacity:.3;text-align:right;margin-top:2px}
+.map-info{position:absolute;bottom:26px;left:28px;z-index:420;pointer-events:none;font-family:var(--font-label);font-size:8px;color:var(--ink-dan);opacity:.3;letter-spacing:2px}
+.map-seal{position:absolute;bottom:58px;right:110px;z-index:420;pointer-events:none;opacity:.1}
+.landmark{position:absolute;z-index:6;pointer-events:none;opacity:0;animation:landmarkFadeIn 1.2s ease forwards}
+.landmark svg{overflow:visible}
+@keyframes landmarkFadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.ink-particle{position:absolute;border-radius:50%;pointer-events:none;z-index:5;animation:inkFloat 12s ease-in-out infinite}
+@keyframes inkFloat{0%,100%{transform:translateY(0) scale(1);opacity:.03}50%{transform:translateY(-8px) scale(1.2);opacity:.06}}
+
+/* ═══════════════════════════════════
+   B区: DOCUMENT CARD
+   ═══════════════════════════════════ */
+.region-narrative{grid-area:narrative;position:relative;overflow:hidden;
+  background:linear-gradient(135deg,var(--aged-paper) 0%,var(--parchment) 100%)}
+.corner{position:absolute;width:28px;height:28px;z-index:5;pointer-events:none}
+.corner::before,.corner::after{content:'';position:absolute;background:var(--gold);opacity:.22}
+.corner-tl{top:18px;left:18px}.corner-tl::before{top:0;left:0;width:28px;height:1.5px}.corner-tl::after{top:0;left:0;width:1.5px;height:28px}
+.corner-tr{top:18px;right:18px}.corner-tr::before{top:0;right:0;width:28px;height:1.5px}.corner-tr::after{top:0;right:0;width:1.5px;height:28px}
+.corner-bl{bottom:18px;left:18px}.corner-bl::before{bottom:0;left:0;width:28px;height:1.5px}.corner-bl::after{bottom:0;left:0;width:1.5px;height:28px}
+.corner-br{bottom:18px;right:18px}.corner-br::before{bottom:0;right:0;width:28px;height:1.5px}.corner-br::after{bottom:0;right:0;width:1.5px;height:28px}
+.doc-card{position:absolute;inset:0;padding:28px 32px;display:flex;flex-direction:column}
+.doc-header{display:flex;align-items:flex-start;gap:18px;margin-bottom:14px;flex-shrink:0}
+.year-display{font-family:var(--font-display);font-size:88px;line-height:1;color:var(--ink-heavy);text-shadow:0 0 50px rgba(26,23,20,.1)}
+.ganzhi-column{display:flex;flex-direction:column;align-items:center;gap:2px;padding-top:8px}
+.ganzhi-char{font-family:var(--font-display);font-size:24px;color:var(--ink-nong);writing-mode:vertical-rl;line-height:1.3}
+.ganzhi-age{font-family:var(--font-sans);font-size:9px;font-weight:300;color:var(--ink-dan);writing-mode:vertical-rl;margin-top:6px}
+.doc-location{font-family:var(--font-sans);font-size:10px;font-weight:300;color:var(--ink-dan);margin-top:3px;letter-spacing:2px}
+.doc-sep{width:100%;height:1px;flex-shrink:0;margin-bottom:14px;
+  background:linear-gradient(to right,transparent,rgba(107,88,64,.22) 18%,rgba(107,88,64,.22) 82%,transparent)}
+.doc-body{flex:1;overflow-y:auto;padding-right:10px;scrollbar-width:thin;scrollbar-color:var(--ink-wash) transparent}
+.doc-body::-webkit-scrollbar{width:2px}
+.doc-body::-webkit-scrollbar-track{background:transparent}
+.doc-body::-webkit-scrollbar-thumb{background:var(--ink-zhong);border-radius:1px}
+.doc-text{font-family:var(--font-body);font-size:15px;line-height:2;color:var(--ink-nong);text-align:justify;white-space:pre-wrap}
+.doc-seals{position:absolute;bottom:22px;right:30px;display:flex;gap:10px;z-index:10}
+.seal-stamp{width:48px;height:48px;border:2px solid var(--cinnabar);border-radius:2px;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;padding:4px 5px;
+  animation:sealPress .6s cubic-bezier(.34,1.56,.64,1) forwards;opacity:0;transform:scale(2) rotate(-12deg)}
+.seal-stamp:nth-child(2){animation-delay:.7s}.seal-stamp:nth-child(3){animation-delay:.9s}
+.seal-char{font-family:var(--font-display);font-size:10px;color:var(--cinnabar);line-height:1.1}
+@keyframes sealPress{0%{opacity:0;transform:scale(2) rotate(-12deg)}45%{opacity:1;transform:scale(.92) rotate(1deg)}65%{transform:scale(1.06) rotate(-.5deg)}100%{opacity:.85;transform:scale(1) rotate(0)}}
+
+/* ═══════════════════════════════════
+   C区: RELATIONSHIP GRAPH
+   ═══════════════════════════════════ */
+.region-graph{grid-area:graph;position:relative;overflow:hidden;
+  background-color:var(--parchment-dark);
+  background-image:
+    repeating-linear-gradient(0deg,transparent,transparent 36px,rgba(107,88,64,.05) 36px,rgba(107,88,64,.05) 37px),
+    repeating-linear-gradient(90deg,transparent,transparent 36px,rgba(107,88,64,.05) 36px,rgba(107,88,64,.05) 37px),
+    radial-gradient(ellipse at 30% 40%,rgba(184,168,144,.15) 0%,transparent 50%),
+    radial-gradient(ellipse at 70% 70%,rgba(168,158,146,.12) 0%,transparent 45%)}
+.graph-title{position:absolute;top:14px;left:20px;z-index:5;font-family:var(--font-display);font-size:16px;color:var(--ink-dan);opacity:.35;letter-spacing:3px;pointer-events:none}
+#graphCanvas{width:100%;height:100%;position:relative}
+
+.graph-links{position:absolute;inset:0;z-index:1;pointer-events:none}
+.graph-node{position:absolute;transform:translate(-50%,-50%);cursor:pointer;z-index:3;transition:filter .3s}
+.graph-node:hover{z-index:10;filter:brightness(1.3)}
+.node-circle{border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative}
+.node-circle::after{content:'';position:absolute;inset:-4px;border-radius:50%;border:1px solid transparent;transition:border-color .3s}
+.graph-node:hover .node-circle::after,.graph-node.active .node-circle::after{border-color:rgba(184,58,46,.4)}
+.node-label{position:absolute;font-family:var(--font-body);font-size:11px;color:var(--ink-nong);white-space:nowrap;pointer-events:none;transition:color .3s}
+.graph-node.active .node-label{color:var(--cinnabar);font-weight:600}
+.graph-node.dimmed{opacity:.25}
+
+/* ═══════════════════════════════════
+   D区: TIMELINE RULER
+   ═══════════════════════════════════ */
+.region-timeline{grid-area:timeline;position:relative;overflow:hidden;
+  background-color:var(--parchment-dark);
+  background-image:
+    linear-gradient(to right,rgba(107,88,64,.08) 0%,transparent 1.5%,transparent 98.5%,rgba(107,88,64,.08) 100%),
+    repeating-linear-gradient(90deg,transparent,transparent 48px,rgba(107,88,64,.05) 48px,rgba(107,88,64,.05) 49px);
+  border-top:2px solid rgba(107,88,64,.22);
+  box-shadow:inset 0 2px 10px rgba(74,61,46,.08)}
+.timeline-era{position:absolute;left:0;top:0;bottom:0;width:88px;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:20;
+  background:linear-gradient(to right,var(--parchment-dark) 55%,transparent);padding:8px}
+.era-label{font-family:var(--font-display);font-size:13px;color:var(--ink-zhong);letter-spacing:4px;writing-mode:vertical-rl;opacity:.55}
+.era-range{font-family:var(--font-sans);font-size:7px;font-weight:300;color:var(--ink-dan);writing-mode:vertical-rl;margin-top:6px;opacity:.45}
+.timeline-track{position:absolute;inset:0;display:flex;align-items:stretch;padding:8px 34px 0 96px;overflow-x:auto;overflow-y:hidden;scrollbar-width:none}
+.timeline-track::-webkit-scrollbar{display:none}
+.timeline-track::before{content:'';position:absolute;left:96px;right:34px;top:62%;height:1px;
+  background:linear-gradient(to right,transparent,rgba(107,88,64,.18) 3%,rgba(107,88,64,.18) 97%,transparent);z-index:0}
+.timeline-tick{display:flex;flex-direction:column;align-items:center;flex-shrink:0;cursor:pointer;position:relative;min-width:18px;width:18px;z-index:1}
+.tick-bar{width:4px;min-height:2px;border-radius:1px 1px 0 0;position:absolute;bottom:38%;transition:all .3s;align-self:center;
+  background:linear-gradient(to top,rgba(74,67,58,.28),rgba(74,67,58,.06))}
+.timeline-tick:hover .tick-bar{background:linear-gradient(to top,rgba(74,67,58,.5),rgba(74,67,58,.12));width:6px}
+.timeline-tick.active .tick-bar{background:linear-gradient(to top,rgba(184,58,46,.65),rgba(184,58,46,.12));width:8px;box-shadow:0 -2px 10px rgba(184,58,46,.12)}
+.tick-mark{width:3px;height:3px;border-radius:50%;background:var(--ink-wash);position:absolute;top:62%;left:50%;transform:translate(-50%,-50%);transition:all .3s}
+.tick-mark.has-entries{background:var(--ink-dan);width:4px;height:4px}
+.timeline-tick:hover .tick-mark.has-entries{background:var(--ink-zhong);transform:translate(-50%,-50%) scale(1.5)}
+.timeline-tick.active .tick-mark{background:var(--cinnabar);width:5px;height:5px;box-shadow:0 0 8px rgba(184,58,46,.35)}
+.tick-year{position:absolute;top:calc(62% + 10px);left:50%;transform:translateX(-50%);font-family:var(--font-sans);font-size:8px;font-weight:300;color:var(--ink-dan);transition:all .3s;white-space:nowrap}
+.tick-year.hidden-year{visibility:hidden}
+.timeline-tick:hover .tick-year{color:var(--ink-zhong)}
+.timeline-tick.active .tick-year{color:var(--cinnabar);font-weight:500;font-size:10px}
+.tick-indicator{position:absolute;top:4px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;opacity:0;transition:opacity .3s}
+.tick-indicator-line{width:1px;height:10px;background:var(--cinnabar);opacity:.4}
+.tick-indicator-flag{font-family:var(--font-display);font-size:12px;color:var(--cinnabar);background:rgba(184,58,46,.08);padding:2px 7px;border:1px solid rgba(184,58,46,.18);white-space:nowrap}
+.timeline-tick.active .tick-indicator{opacity:1}
+.timeline-tooltip{position:absolute;bottom:calc(38% + 8px);left:50%;transform:translateX(-50%);background:var(--parchment);border:1px solid rgba(107,88,64,.22);padding:7px 11px;min-width:105px;z-index:100;opacity:0;pointer-events:none;transition:opacity .2s;box-shadow:0 2px 10px rgba(26,23,20,.1)}
+.timeline-tick:hover .timeline-tooltip{opacity:1}
+.tooltip-year{font-family:var(--font-display);font-size:18px;color:var(--ink-heavy);line-height:1}
+.tooltip-ganzhi{font-family:var(--font-sans);font-size:9px;color:var(--ink-zhong);margin-top:2px}
+.tooltip-info{font-family:var(--font-sans);font-size:9px;font-weight:300;color:var(--ink-dan);margin-top:2px}
+.timeline-tooltip::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:3px solid transparent;border-top-color:var(--parchment)}
+
+/* Animations */
+@keyframes fadeInUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.region-map{animation:fadeInUp 1s ease 2.6s both}
+.region-narrative{animation:fadeInUp 1s ease 2.8s both}
+.region-graph{animation:fadeInUp 1s ease 3s both}
+.region-timeline{animation:fadeInUp 1s ease 3.2s both}
+</style>
+</head>
+<body>
+
+<!-- SVG Filters -->
+<svg class="svg-filters" aria-hidden="true">
+  <defs>
+    <filter id="map-ink-filter"><feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="4" result="noise"/><feDisplacementMap in="SourceGraphic" in2="noise" scale="2" xChannelSelector="R" yChannelSelector="G"/></filter>
+    <filter id="landmark-texture"><feTurbulence type="fractalNoise" baseFrequency="0.08" numOctaves="2" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="1.5"/></filter>
+  </defs>
+</svg>
+
+<!-- Loading -->
+<div class="loading-screen"><div class="ink-splash"></div><div class="loading-text">黄宾虹年谱</div></div>
+
+<!-- Dashboard -->
+<div class="viewport-scale" id="viewportScale">
+<div class="dashboard">
+<div class="divider-h"></div>
+
+<!-- ═══ A区: INK MAP ═══ -->
+<div class="region-map">
+  <div id="inkMapChart"></div>
+  <div class="map-vignette"></div>
+  <div class="map-grain"></div>
+  <div class="map-frame"></div>
+  <div class="map-frame-inner"></div>
+  <div class="region-title">笔墨山河<div class="region-title-sub">黄宾虹游迹图</div></div>
+  <div class="map-year-watermark"><div class="map-year-text">1949</div><div class="map-year-ganzhi">己丑</div></div>
+  <svg class="map-compass" viewBox="0 0 52 52">
+    <circle cx="26" cy="26" r="22" fill="none" stroke="rgba(74,67,58,.28)" stroke-width=".5"/>
+    <circle cx="26" cy="26" r="15" fill="none" stroke="rgba(74,67,58,.18)" stroke-width=".3"/>
+    <line x1="26" y1="4" x2="26" y2="14" stroke="rgba(74,67,58,.45)" stroke-width=".8"/>
+    <line x1="26" y1="38" x2="26" y2="48" stroke="rgba(74,67,58,.28)" stroke-width=".5"/>
+    <line x1="4" y1="26" x2="14" y2="26" stroke="rgba(74,67,58,.28)" stroke-width=".5"/>
+    <line x1="38" y1="26" x2="48" y2="26" stroke="rgba(74,67,58,.28)" stroke-width=".5"/>
+    <text x="26" y="3" text-anchor="middle" font-size="5" fill="rgba(74,67,58,.5)" font-family="'ZCOOL XiaoWei',serif">北</text>
+    <text x="26" y="52" text-anchor="middle" font-size="5" fill="rgba(74,67,58,.38)" font-family="'ZCOOL XiaoWei',serif">南</text>
+    <text x="1" y="27" text-anchor="middle" font-size="5" fill="rgba(74,67,58,.38)" font-family="'ZCOOL XiaoWei',serif">西</text>
+    <text x="51" y="27" text-anchor="middle" font-size="5" fill="rgba(74,67,58,.38)" font-family="'ZCOOL XiaoWei',serif">东</text>
+    <circle cx="26" cy="26" r="2" fill="rgba(74,67,58,.3)"/>
+  </svg>
+
+  <!-- Landmarks -->
+  <div class="landmark" id="lm-greatwall" style="animation-delay:3s"><svg width="44" height="30" viewBox="0 0 44 30"><g stroke="rgba(74,67,58,.32)" stroke-width=".8" fill="none" stroke-linecap="round" filter="url(#landmark-texture)"><path d="M3 24L9 20 15 22 21 18 27 20 33 16 39 18 44 14"/><rect x="1" y="16" width="6" height="8" rx=".5"/><rect x="13" y="18" width="6" height="7" rx=".5"/><rect x="25" y="15" width="6" height="7" rx=".5"/><rect x="37" y="11" width="6" height="7" rx=".5"/></g><text x="22" y="30" text-anchor="middle" font-size="6.5" fill="rgba(74,67,58,.28)" font-family="'ZCOOL XiaoWei',serif">长城</text></svg></div>
+  <div class="landmark" id="lm-pagoda" style="animation-delay:3.2s"><svg width="22" height="38" viewBox="0 0 22 38"><g stroke="rgba(74,67,58,.28)" stroke-width=".7" fill="none" stroke-linecap="round" filter="url(#landmark-texture)"><line x1="11" y1="2" x2="11" y2="7"/><circle cx="11" cy="2" r="1.3"/><path d="M4 7Q7 5 11 7Q15 5 18 7"/><path d="M5 13Q8 11 11 13Q14 11 17 13"/><path d="M6 19Q8.5 17 11 19Q13.5 17 16 19"/><path d="M7 25Q9 23 11 25Q13 23 15 25"/><line x1="7" y1="7" x2="7" y2="13"/><line x1="15" y1="7" x2="15" y2="13"/><line x1="8" y1="13" x2="8" y2="19"/><line x1="14" y1="13" x2="14" y2="19"/><line x1="9" y1="19" x2="9" y2="25"/><line x1="13" y1="19" x2="13" y2="25"/><rect x="7" y="25" width="8" height="4" rx=".5"/></g><text x="11" y="37" text-anchor="middle" font-size="6" fill="rgba(74,67,58,.24)" font-family="'ZCOOL XiaoWei',serif">雷峰塔</text></svg></div>
+  <div class="landmark" id="lm-pine" style="animation-delay:3.4s"><svg width="34" height="32" viewBox="0 0 34 32"><g stroke="rgba(74,67,58,.28)" stroke-width=".7" fill="none" stroke-linecap="round" filter="url(#landmark-texture)"><path d="M17 28Q16 20 15 16Q14 12 16 8"/><path d="M16 12Q9 10 5 12"/><ellipse cx="4" cy="11" rx="3.5" ry="2" fill="rgba(74,67,58,.05)" stroke="none"/><path d="M15 16Q23 13 27 15"/><ellipse cx="28" cy="14" rx="3.5" ry="1.8" fill="rgba(74,67,58,.05)" stroke="none"/><path d="M16 8Q11 5 7 7"/><ellipse cx="6" cy="6" rx="3" ry="1.8" fill="rgba(74,67,58,.05)" stroke="none"/><path d="M16 8Q21 4 25 6"/><ellipse cx="26" cy="5" rx="3" ry="1.8" fill="rgba(74,67,58,.05)" stroke="none"/><ellipse cx="15" cy="5" rx="3.5" ry="2.5" stroke="rgba(74,67,58,.12)" stroke-width=".4" fill="rgba(74,67,58,.03)"/><path d="M17 28Q13 29 11 31"/><path d="M17 28Q21 29 23 31"/></g><text x="17" y="32" text-anchor="middle" font-size="6" fill="rgba(74,67,58,.24)" font-family="'ZCOOL XiaoWei',serif">迎客松</text></svg></div>
+  <div class="landmark" id="lm-buddha" style="animation-delay:3.6s"><svg width="26" height="34" viewBox="0 0 26 34"><g stroke="rgba(74,67,58,.22)" stroke-width=".6" fill="none" stroke-linecap="round" filter="url(#landmark-texture)"><circle cx="13" cy="7" r="4.5"/><circle cx="13" cy="7" r="6.5" stroke-dasharray="2 2" opacity=".35"/><path d="M8 12Q7 17 5 22Q4 26 5 30"/><path d="M18 12Q19 17 21 22Q22 26 21 30"/><path d="M5 18Q9 20 13 20Q17 20 21 18"/><path d="M3 30Q7 28 13 30Q19 28 23 30"/></g><text x="13" y="34" text-anchor="middle" font-size="5.5" fill="rgba(74,67,58,.2)" font-family="'ZCOOL XiaoWei',serif">乐山大佛</text></svg></div>
+  <div class="landmark" id="lm-gorge" style="animation-delay:3.8s"><svg width="38" height="26" viewBox="0 0 38 26"><g stroke="rgba(74,67,58,.25)" stroke-width=".7" fill="none" stroke-linecap="round" filter="url(#landmark-texture)"><path d="M4 4L4 22Q6 20 7 16L9 22"/><path d="M30 4L30 22Q28 20 27 16L25 22"/><path d="M11 22Q15 18 19 20Q23 18 27 22" stroke="rgba(74,67,58,.1)" stroke-width="1.2"/><path d="M2 4Q4 0 6 4" opacity=".5"/><path d="M28 4Q30 0 32 4" opacity=".5"/></g><text x="19" y="26" text-anchor="middle" font-size="5.5" fill="rgba(74,67,58,.2)" font-family="'ZCOOL XiaoWei',serif">夔门</text></svg></div>
+  <div class="landmark" id="lm-liriver" style="animation-delay:4s"><svg width="42" height="28" viewBox="0 0 42 28"><g stroke="rgba(184,58,46,.18)" stroke-width=".6" fill="none" stroke-linecap="round" filter="url(#landmark-texture)"><path d="M5 22Q7 8 9 4Q11 8 13 22" stroke="rgba(74,67,58,.22)"/><path d="M11 22Q13 12 16 6Q19 12 21 22" stroke="rgba(74,67,58,.2)"/><path d="M19 22Q21 14 24 8Q27 14 29 22" stroke="rgba(74,67,58,.22)"/><path d="M27 22Q29 16 31 12Q33 16 35 22" stroke="rgba(74,67,58,.18)"/><path d="M3 23Q13 21 23 23Q33 21 41 23" stroke="rgba(74,67,58,.08)" stroke-width=".8"/></g><text x="21" y="28" text-anchor="middle" font-size="5.5" fill="rgba(184,58,46,.25)" font-family="'ZCOOL XiaoWei',serif">漓江山水</text></svg></div>
+  <div class="landmark" id="lm-emei" style="animation-delay:4.2s"><svg width="28" height="32" viewBox="0 0 28 32"><g stroke="rgba(74,67,58,.22)" stroke-width=".7" fill="none" stroke-linecap="round" filter="url(#landmark-texture)"><path d="M3 16L3 26M25 16L25 26"/><path d="M0 16Q7 10 14 14Q21 10 28 16"/><circle cx="14" cy="9" r="1.3"/><line x1="3" y1="20" x2="25" y2="20"/><path d="M9 20L9 26M19 20L19 26"/><path d="M9 20Q14 17 19 20"/><path d="M7 26L21 26M8 28L20 28"/></g><text x="14" y="32" text-anchor="middle" font-size="5.5" fill="rgba(74,67,58,.2)" font-family="'ZCOOL XiaoWei',serif">峨眉山</text></svg></div>
+
+  <div class="map-info">同治四年 — 一九五五 · 游踪所至</div>
+  <div class="map-seal"><svg width="26" height="26" viewBox="0 0 26 26"><rect x="1" y="1" width="24" height="24" rx="1" fill="none" stroke="var(--cinnabar)" stroke-width="1" opacity=".7"/><text x="13" y="9" text-anchor="middle" font-size="7" fill="var(--cinnabar)" font-family="'Ma Shan Zheng',cursive" opacity=".7">宾虹</text><text x="13" y="20" text-anchor="middle" font-size="7" fill="var(--cinnabar)" font-family="'Ma Shan Zheng',cursive" opacity=".7">之印</text></svg></div>
+  <div class="ink-particle" style="width:5px;height:5px;background:radial-gradient(circle,rgba(74,67,58,.12),transparent);left:200px;top:280px"></div>
+  <div class="ink-particle" style="width:4px;height:4px;background:radial-gradient(circle,rgba(74,67,58,.08),transparent);left:500px;top:180px;animation-delay:3s"></div>
+</div>
+
+<!-- ═══ B区: DOCUMENT CARD ═══ -->
+<div class="region-narrative">
+  <div class="corner corner-tl"></div><div class="corner corner-tr"></div>
+  <div class="corner corner-bl"></div><div class="corner corner-br"></div>
+  <div class="doc-card">
+    <div class="doc-header">
+      <div><div class="year-display">1949</div><div class="doc-location">桂林 · 阳朔 · 漓江</div></div>
+      <div class="ganzhi-column"><div class="ganzhi-char">己丑</div><div class="ganzhi-age">八十六叟</div></div>
+    </div>
+    <div class="doc-sep"></div>
+    <div class="doc-body">
+      <p class="doc-text">（一）慈竹平安馆图。宋范石湖言：桂林山水甲天下，阳朔山水甲桂林。余游漓江，宿盖山对岸旬余，同游者陈教授定谟、杨生元生。得图而归，写此一角，应雁迅先生属。己丑（1949年），八十六叟宾虹。
+
+（二）竹比节，松祝寿。慈母恩，永不朽。庚寅（1950年）秋，雁迅兄属为其母氏六十寿辰作此。张宗祥。
+
+（三）己丑仲春，为雁迅先生写慈竹平安馆图。山阴田寄南。
+
+黄宾虹晚年游历广西，于漓江盖山对岸旬余，得山水真趣。此图绘慈竹平安馆，以寄平安之意。雁迅先生与黄宾虹交谊深厚，常以诗画相赠。同游者尚有陈教授定谟、杨生元生等，皆一时之选。</p>
+    </div>
+    <div class="doc-seals">
+      <div class="seal-stamp"><span class="seal-char">宗祥</span><span class="seal-char">诗书</span></div>
+      <div class="seal-stamp"><span class="seal-char">寄翁</span></div>
+      <div class="seal-stamp"><span class="seal-char">宾虹</span><span class="seal-char">之印</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ C区: RELATIONSHIP GRAPH ═══ -->
+<div class="region-graph">
+  <div class="graph-title">文人交游</div>
+  <div id="graphCanvas">
+    <!-- SVG links -->
+    <svg class="graph-links" width="100%" height="100%">
+      <path d="M 340 180 C 380 140 440 140 480 180" stroke="rgba(184,58,46,.5)" stroke-width="2.5" fill="none" stroke-dasharray="6 3" stroke-linecap="round"/>
+      <path d="M 340 180 C 300 240 240 250 200 260" stroke="rgba(74,67,58,.2)" stroke-width="1" fill="none" stroke-dasharray="4 4" stroke-linecap="round"/>
+      <path d="M 340 180 C 320 260 310 320 300 340" stroke="rgba(74,67,58,.2)" stroke-width="1" fill="none" stroke-dasharray="4 4" stroke-linecap="round"/>
+      <path d="M 340 180 C 420 230 500 280 560 320" stroke="rgba(184,58,46,.35)" stroke-width="1.8" fill="none" stroke-dasharray="5 3" stroke-linecap="round"/>
+      <path d="M 340 180 C 280 150 220 150 170 180" stroke="rgba(74,67,58,.18)" stroke-width="1" fill="none" stroke-dasharray="4 4" stroke-linecap="round"/>
+      <path d="M 480 180 C 520 240 550 280 560 320" stroke="rgba(184,58,46,.25)" stroke-width="1.2" fill="none" stroke-dasharray="4 3" stroke-linecap="round"/>
+      <path d="M 170 180 C 280 130 400 130 480 180" stroke="rgba(74,67,58,.12)" stroke-width="1" fill="none" stroke-dasharray="4 4" stroke-linecap="round"/>
+    </svg>
+    <!-- Nodes -->
+    <div class="graph-node active" style="left:340px;top:180px"><div class="node-circle" style="width:64px;height:64px;background:radial-gradient(circle,rgba(184,58,46,.85) 0%,rgba(184,58,46,.35) 50%,rgba(184,58,46,.08) 72%,transparent 88%)"></div><div class="node-label" style="top:70px;left:50%;transform:translateX(-50%)">黄宾虹</div></div>
+    <div class="graph-node active" style="left:480px;top:180px"><div class="node-circle" style="width:48px;height:48px;background:radial-gradient(circle,rgba(184,58,46,.7) 0%,rgba(184,58,46,.25) 55%,transparent 75%)"></div><div class="node-label" style="top:54px;left:50%;transform:translateX(-50%)">雁迅</div></div>
+    <div class="graph-node active" style="left:560px;top:320px"><div class="node-circle" style="width:44px;height:44px;background:radial-gradient(circle,rgba(184,58,46,.6) 0%,rgba(184,58,46,.2) 55%,transparent 75%)"></div><div class="node-label" style="top:50px;left:50%;transform:translateX(-50%)">张宗祥</div></div>
+    <div class="graph-node dimmed" style="left:200px;top:260px"><div class="node-circle" style="width:36px;height:36px;background:radial-gradient(circle,rgba(42,37,32,.55) 0%,rgba(74,67,58,.22) 55%,transparent 75%)"></div><div class="node-label" style="top:42px;left:50%;transform:translateX(-50%)">陈定谟</div></div>
+    <div class="graph-node dimmed" style="left:300px;top:340px"><div class="node-circle" style="width:32px;height:32px;background:radial-gradient(circle,rgba(42,37,32,.5) 0%,rgba(74,67,58,.2) 55%,transparent 75%)"></div><div class="node-label" style="top:38px;left:50%;transform:translateX(-50%)">杨元生</div></div>
+    <div class="graph-node dimmed" style="left:170px;top:180px"><div class="node-circle" style="width:34px;height:34px;background:radial-gradient(circle,rgba(42,37,32,.5) 0%,rgba(74,67,58,.2) 55%,transparent 75%)"></div><div class="node-label" style="top:40px;left:50%;transform:translateX(-50%)">田寄南</div></div>
+    <div class="graph-node dimmed" style="left:500px;top:250px"><div class="node-circle" style="width:30px;height:30px;background:radial-gradient(circle,rgba(42,37,32,.45) 0%,rgba(74,67,58,.18) 55%,transparent 75%)"></div><div class="node-label" style="top:36px;left:50%;transform:translateX(-50%)">钟毓龙</div></div>
+  </div>
+</div>
+
+<!-- ═══ D区: TIMELINE ═══ -->
+<div class="region-timeline">
+  <div class="timeline-era"><div class="era-label">编年总览</div><div class="era-range">同治·光绪·宣统·民国</div></div>
+  <div class="timeline-track" id="timelineTrack"></div>
+</div>
+
+</div><!-- dashboard -->
+</div><!-- viewport-scale -->
+
+<script>
+// ═══ VIEWPORT SCALING ═══
+function scaleVP(){
+  var el=document.getElementById('viewportScale');if(!el)return;
+  var s=Math.min(window.innerWidth/1920,window.innerHeight/1080);
+  el.style.transform='scale('+s+')';
+  el.style.left=Math.max(0,(window.innerWidth-1920*s)/2)+'px';
+  el.style.top=Math.max(0,(window.innerHeight-1080*s)/2)+'px';
+}
+scaleVP();window.addEventListener('resize',scaleVP);
+
+// ═══ D区: TIMELINE ═══
+(function(){
+  var track=document.getElementById('timelineTrack');
+  var yearsWithEntries=[1865,1870,1875,1880,1885,1890,1894,1895,1898,1900,1902,1904,1905,1906,1907,1908,1909,1910,1911,1912,1913,1914,1915,1916,1917,1918,1919,1920,1921,1922,1923,1924,1925,1926,1927,1928,1929,1930,1931,1932,1933,1934,1935,1936,1937,1938,1939,1940,1941,1942,1943,1944,1945,1946,1947,1948,1949,1950,1951,1952,1953,1954,1955];
+  var gz=['甲子','乙丑','丙寅','丁卯','戊辰','己巳','庚午','辛未','壬申','癸酉','甲戌','乙亥','丙子','丁丑','戊寅','己卯','庚辰','辛巳','壬午','癸未','甲申','乙酉','丙戌','丁亥','戊子','己丑','庚寅','辛卯','壬辰','癸巳','甲午','乙未','丙申','丁酉','戊戌','己亥','庚子','辛丑','壬寅','癸卯','甲辰','乙巳','丙午','丁未','戊申','己酉','庚戌','辛亥','壬子','癸丑','甲寅','乙卯','丙辰','丁巳','戊午','己未','庚申','辛酉','壬戌','癸亥'];
+  var counts={1945:10,1955:9,1932:6,1933:6,1949:5,1907:5,1923:5,1935:4,1951:4,1953:4,1912:3,1929:3};
+  var years=[];
+  for(var y=1861;y<=1955;y++){var has=yearsWithEntries.indexOf(y)!==-1;years.push({year:y,has:has,ec:counts[y]||(has?Math.floor(Math.random()*3)+1:0)})}
+  var mx=0;for(var i=0;i<years.length;i++){if(years[i].ec>mx)mx=years[i].ec;}
+  years.forEach(function(item){
+    var y=item.year,has=item.has,ec=item.ec;
+    var isA=(y===1949);
+    var t=document.createElement('div');t.className='timeline-tick'+(isA?' active':'');
+    var gzz=gz[(y-4)%60],sl=y%5===0||isA,bh=ec>0?Math.max(3,(ec/mx)*30):0;
+    var h=(isA?'<div class="tick-indicator"><div class="tick-indicator-flag">'+gzz+'</div><div class="tick-indicator-line"></div></div>':'')
+      +(bh>0?'<div class="tick-bar" style="height:'+bh+'px"></div>':'')
+      +'<div class="tick-mark'+(has?' has-entries':'')+'"></div>'
+      +'<div class="tick-year'+(sl?'':' hidden-year')+'">'+y+'</div>'
+      +(has?'<div class="timeline-tooltip"><div class="tooltip-year">'+y+'</div><div class="tooltip-ganzhi">'+gzz+'</div><div class="tooltip-info">'+ec+' 条历史记录</div></div>':'');
+    t.innerHTML=h;track.appendChild(t);
+  });
+  setTimeout(function(){var a=document.querySelector('.timeline-tick.active');if(a)a.scrollIntoView({behavior:'smooth',inline:'center',block:'nearest'})},4000);
+})();
+
+// ═══ A区: INK MAP (ECharts Geo with local GeoJSON) ═══
+(function(){
+  var chartDom=document.getElementById('inkMapChart');
+  if(!chartDom)return;
+
+  var locations=[
+    {name:'北京',coords:[116.40,39.90],active:false,sz:'lg'},
+    {name:'上海',coords:[121.47,31.23],active:false,sz:'lg'},
+    {name:'杭州',coords:[120.15,30.27],active:false,sz:'md'},
+    {name:'南京',coords:[118.80,32.06],active:false,sz:'md'},
+    {name:'桂林',coords:[110.29,25.27],active:true,sz:'lg'},
+    {name:'阳朔',coords:[110.18,24.78],active:true,sz:'md'},
+    {name:'漓江',coords:[110.30,25.00],active:true,sz:'sm'},
+    {name:'成都',coords:[104.07,30.57],active:false,sz:'lg'},
+    {name:'峨眉',coords:[103.33,29.60],active:false,sz:'sm'},
+    {name:'黄山',coords:[118.17,30.13],active:false,sz:'md'},
+    {name:'广州',coords:[113.26,23.13],active:false,sz:'md'},
+    {name:'武汉',coords:[114.31,30.59],active:false,sz:'md'},
+    {name:'歙县',coords:[118.44,29.86],active:false,sz:'sm'},
+    {name:'重庆',coords:[106.55,29.56],active:false,sz:'md'},
+    {name:'金华',coords:[119.65,29.08],active:false,sz:'sm'},
+    {name:'巫山',coords:[109.88,31.07],active:false,sz:'sm'},
+    {name:'青城山',coords:[103.57,30.90],active:false,sz:'sm'},
+    {name:'乐山',coords:[103.77,29.55],active:false,sz:'sm'},
+  ];
+
+  function renderMap(){
+    if(typeof echarts==='undefined'){chartDom.innerHTML='<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--ink-dan);font-family:var(--font-body);opacity:.4">Loading map...</div>';return;}
+    var chart=echarts.init(chartDom,null,{renderer:'svg'});
+
+    // Try loading GeoJSON: local file first, then CDN fallbacks
+    var geoSources=[
+      'data/china.json',
+      'https://geo.datav.aliyun.com/areas_v3/bound/100000.json',
+      'https://geo.datav.aliyun.com/areas_v3/bound/100000_full.json'
+    ];
+
+    function tryGeoJSON(idx){
+      if(idx>=geoSources.length){chartDom.innerHTML='<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--ink-dan);font-family:var(--font-body);opacity:.4">Map data unavailable</div>';return;}
+      fetch(geoSources[idx])
+        .then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json()})
+        .then(function(geoJson){echarts.registerMap('china',geoJson);renderChart(chart)})
+        .catch(function(){tryGeoJSON(idx+1)});
+    }
+    tryGeoJSON(0);
+  }
+
+  function renderChart(chart){
+    var scatterData=locations.map(function(loc){
+      return {name:loc.name,value:[].concat(loc.coords,[loc.active?1:0]),active:loc.active,size:loc.sz,
+        itemStyle:loc.active?{color:'rgba(184,58,46,.9)',borderColor:'#B83A2E',borderWidth:2}:{color:'rgba(74,67,58,.5)',borderColor:'transparent',borderWidth:0},
+        symbol:loc.active?'rect':'circle',
+        symbolSize:loc.active?(loc.sz==='lg'?28:loc.sz==='md'?22:18):(loc.sz==='lg'?12:loc.sz==='md'?9:7),
+        label:{show:true,position:loc.active?'inside':'bottom',formatter:loc.name,
+          color:loc.active?'#B83A2E':'rgba(74,67,58,.6)',fontSize:loc.active?10:9,
+          fontFamily:loc.active?"'Ma Shan Zheng',cursive":"'ZCOOL XiaoWei',serif",distance:loc.active?0:8}
+      };
+    });
+    var activeRoute=[[121.47,31.23],[120.15,30.27],[119.65,29.08],[110.29,25.27],[110.18,24.78]];
+    var bgRoutes=[[[121.47,31.23],[116.40,39.90]],[[121.47,31.23],[118.80,32.06]],[[121.47,31.23],[118.17,30.13]],[[104.07,30.57],[103.33,29.60]],[[104.07,30.57],[103.77,29.55]],[[104.07,30.57],[106.55,29.56]],[[114.31,30.59],[109.88,31.07]],[[121.47,31.23],[113.26,23.13]]];
+
+    chart.setOption({
+      backgroundColor:'transparent',
+      geo:{map:'china',roam:false,center:[108,33],zoom:1.2,aspectScale:.78,
+        itemStyle:{areaColor:{type:'radial',x:.5,y:.4,r:.8,colorStops:[{offset:0,color:'rgba(74,67,58,.05)'},{offset:.6,color:'rgba(74,67,58,.03)'},{offset:1,color:'rgba(74,67,58,.06)'}]},borderColor:'rgba(74,67,58,.2)',borderWidth:.8},
+        emphasis:{disabled:true},select:{disabled:true},label:{show:false},
+        regions:[{name:'南海诸岛',itemStyle:{opacity:.3},label:{show:false}}]},
+      series:[
+        bgRoutes.map(function(r){return{type:'lines',coordinateSystem:'geo',geoIndex:0,zlevel:1,silent:true,polyline:false,data:[{coords:r}],lineStyle:{color:'rgba(74,61,46,.15)',width:1,type:'dashed',opacity:1,curveness:.2},effect:{show:false}}}),
+        {type:'lines',coordinateSystem:'geo',geoIndex:0,zlevel:2,silent:true,polyline:false,
+          data:[{coords:activeRoute,lineStyle:{color:'#B83A2E',width:2.5,type:'dashed',opacity:.6,curveness:.15}}],
+          effect:{show:true,period:6,trailLength:.4,symbol:'circle',symbolSize:4,color:'#B83A2E'}},
+        {type:'scatter',coordinateSystem:'geo',geoIndex:0,zlevel:3,data:scatterData}
+      ].flat(),
+      animation:true,animationDuration:1500,animationEasingUpdate:'cubicInOut'
+    });
+
+    // Position landmarks
+    setTimeout(function(){
+      var lm={'lm-greatwall':[116,41],'lm-pagoda':[120.15,30.6],'lm-pine':[118.5,30.5],
+        'lm-buddha':[103.77,29.3],'lm-gorge':[109.5,31.3],'lm-liriver':[110.5,24.9],'lm-emei':[103.33,29.8]};
+      Object.keys(lm).forEach(function(id){
+        var el=document.getElementById(id);if(!el)return;
+        var p=chart.convertToPixel('geo',lm[id]);
+        if(p){el.style.left=(p[0]-18)+'px';el.style.top=(p[1]-16)+'px';}
+      });
+    },2500);
+  }
+
+  // Load ECharts if needed, then render map
+  if(typeof echarts!=='undefined'){
+    renderMap();
+  } else {
+    var s=document.createElement('script');
+    s.src='https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js';
+    s.onload=renderMap;
+    s.onerror=function(){chartDom.innerHTML='<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--ink-dan);font-family:var(--font-body);opacity:.4">请联网加载 ECharts 以显示地图</div>'};
+    document.head.appendChild(s);
+  }
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=960, height=972">
+<title>笔墨山河 · 水墨地图</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@400;600;700&family=ZCOOL+XiaoWei&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+
+:root {
+  --rice-paper: #F4F1EA;
+  --aged-paper: #D4C8B4;
+  --ink-burnt: #0D0D0D;
+  --ink-heavy: #1A1714;
+  --ink-medium: #4A433A;
+  --ink-light: #7A7168;
+  --ink-wash: #A89E92;
+  --silk: #DDD4C4;
+  --cinnabar: #B83A2E;
+  --cinnabar-glow: #D44838;
+  --frame-wood: #6B5840;
+  --frame-dark: #4A3D2E;
+  --gold: #A8884A;
+  --jade: #5A8A6A;
+  --font-display: 'Ma Shan Zheng', cursive;
+  --font-body: 'Noto Serif SC', serif;
+  --font-label: 'ZCOOL XiaoWei', serif;
+}
+
+html, body {
+  width: 960px;
+  height: 972px;
+  overflow: hidden;
+  background: var(--rice-paper);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+.svg-filters { position: absolute; width: 0; height: 0; overflow: hidden; }
+
+.ink-map-container {
+  position: relative;
+  width: 960px;
+  height: 972px;
+  overflow: hidden;
+  background-color: var(--aged-paper);
+  background-image:
+    url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.035'/%3E%3C/svg%3E"),
+    radial-gradient(ellipse at 35% 35%, rgba(212,200,176,0.6) 0%, transparent 55%),
+    radial-gradient(ellipse at 65% 60%, rgba(200,186,164,0.4) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 80%, rgba(184,168,144,0.2) 0%, transparent 40%);
+}
+
+/* ═══ ECHARTS CHART ═══ */
+.ink-map-chart {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  /* Apply ink-wash filter to the rendered map */
+  filter: url(#map-ink-filter);
+}
+
+/* ═══ OVERLAY ELEMENTS ═══ */
+.map-title {
+  position: absolute;
+  top: 22px;
+  left: 28px;
+  z-index: 420;
+  pointer-events: none;
+}
+.map-title-main {
+  font-family: var(--font-display);
+  font-size: 22px;
+  color: var(--ink-medium);
+  opacity: 0.5;
+  letter-spacing: 8px;
+  text-shadow: 0 0 20px rgba(212, 200, 176, 0.5);
+}
+.map-title-sub {
+  font-family: var(--font-label);
+  font-size: 10px;
+  color: var(--ink-light);
+  opacity: 0.4;
+  letter-spacing: 3px;
+  margin-top: 4px;
+}
+
+.year-badge {
+  position: absolute;
+  top: 18px;
+  right: 28px;
+  z-index: 420;
+  pointer-events: none;
+}
+.year-badge-text {
+  font-family: var(--font-display);
+  font-size: 56px;
+  color: var(--ink-heavy);
+  opacity: 0.06;
+  line-height: 1;
+}
+.year-badge-ganzhi {
+  font-family: var(--font-display);
+  font-size: 14px;
+  color: var(--cinnabar);
+  opacity: 0.35;
+  text-align: right;
+  margin-top: 2px;
+}
+
+.map-vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 400;
+  background: radial-gradient(
+    ellipse 70% 65% at 48% 45%,
+    transparent 0%,
+    transparent 50%,
+    rgba(184, 168, 144, 0.2) 63%,
+    rgba(184, 168, 144, 0.45) 78%,
+    rgba(184, 168, 144, 0.7) 90%,
+    rgba(168, 158, 146, 0.85) 100%
+  );
+}
+
+.map-grain {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 410;
+  opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='5' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.map-frame {
+  position: absolute;
+  inset: 18px;
+  border: 1px solid rgba(107, 88, 64, 0.14);
+  z-index: 415;
+  pointer-events: none;
+}
+.map-frame-inner {
+  position: absolute;
+  inset: 22px;
+  border: 1px solid rgba(107, 88, 64, 0.07);
+  z-index: 415;
+  pointer-events: none;
+}
+
+.corner-ornament {
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  z-index: 416;
+  pointer-events: none;
+}
+.corner-ornament::before, .corner-ornament::after {
+  content: '';
+  position: absolute;
+  background: var(--frame-wood);
+  opacity: 0.2;
+}
+.corner-tl { top: 18px; left: 18px; }
+.corner-tl::before { top: 0; left: 0; width: 24px; height: 1px; }
+.corner-tl::after { top: 0; left: 0; width: 1px; height: 24px; }
+.corner-tr { top: 18px; right: 18px; }
+.corner-tr::before { top: 0; right: 0; width: 24px; height: 1px; }
+.corner-tr::after { top: 0; right: 0; width: 1px; height: 24px; }
+.corner-bl { bottom: 18px; left: 18px; }
+.corner-bl::before { bottom: 0; left: 0; width: 24px; height: 1px; }
+.corner-bl::after { bottom: 0; left: 0; width: 1px; height: 24px; }
+.corner-br { bottom: 18px; right: 18px; }
+.corner-br::before { bottom: 0; right: 0; width: 24px; height: 1px; }
+.corner-br::after { bottom: 0; right: 0; width: 1px; height: 24px; }
+
+.info-strip {
+  position: absolute;
+  bottom: 28px;
+  left: 32px;
+  z-index: 420;
+  pointer-events: none;
+}
+.info-strip-text {
+  font-family: var(--font-label);
+  font-size: 9px;
+  color: var(--ink-light);
+  opacity: 0.35;
+  letter-spacing: 2px;
+}
+
+/* ═══ LANDMARK BUILDINGS (SVG overlays positioned via CSS) ═══ */
+.landmark {
+  position: absolute;
+  z-index: 6;
+  pointer-events: none;
+  opacity: 0;
+  animation: landmarkFadeIn 1.2s ease forwards;
+}
+.landmark svg {
+  overflow: visible;
+}
+
+@keyframes landmarkFadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Decorative seal */
+.deco-seal {
+  position: absolute;
+  z-index: 6;
+  pointer-events: none;
+  opacity: 0.12;
+  bottom: 65px;
+  right: 120px;
+}
+
+/* Floating ink particles */
+.ink-particle {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 5;
+  animation: inkFloat 12s ease-in-out infinite;
+}
+@keyframes inkFloat {
+  0%, 100% { transform: translateY(0) scale(1); opacity: 0.03; }
+  50% { transform: translateY(-8px) scale(1.2); opacity: 0.06; }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ SVG FILTERS ═══ -->
+<svg class="svg-filters" aria-hidden="true">
+  <defs>
+    <filter id="map-ink-filter">
+      <feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="4" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="2" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <filter id="landmark-texture">
+      <feTurbulence type="fractalNoise" baseFrequency="0.08" numOctaves="2" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="1.5"/>
+    </filter>
+  </defs>
+</svg>
+
+<div class="ink-map-container">
+
+  <!-- ═══ ECHARTS MAP ═══ -->
+  <div id="inkMapChart" class="ink-map-chart"></div>
+
+  <!-- ═══ LANDMARK BUILDINGS ═══ -->
+  <!-- Positions will be set dynamically after map renders -->
+
+  <!-- 长城 Great Wall (near Beijing) -->
+  <div class="landmark" id="lm-greatwall" style="animation-delay: 2.8s;">
+    <svg width="48" height="32" viewBox="0 0 48 32">
+      <g stroke="rgba(74,67,58,0.35)" stroke-width="1" fill="none" stroke-linecap="round" filter="url(#landmark-texture)">
+        <!-- Wall base -->
+        <path d="M 4 26 L 10 22 L 16 24 L 22 20 L 28 22 L 34 18 L 40 20 L 46 16"/>
+        <!-- Towers -->
+        <rect x="2" y="18" width="6" height="8" rx="0.5"/>
+        <rect x="14" y="20" width="6" height="7" rx="0.5"/>
+        <rect x="26" y="17" width="6" height="7" rx="0.5"/>
+        <rect x="38" y="13" width="6" height="7" rx="0.5"/>
+        <!-- Tower tops (crenellations) -->
+        <path d="M 2 18 L 2 15 M 4 18 L 4 15 M 6 18 L 6 15"/>
+        <path d="M 14 20 L 14 17 M 16 20 L 16 17 M 18 20 L 18 17"/>
+        <path d="M 26 17 L 26 14 M 28 17 L 28 14 M 30 17 L 30 14"/>
+        <path d="M 38 13 L 38 10 M 40 13 L 40 10 M 42 13 L 42 10"/>
+      </g>
+      <text x="24" y="32" text-anchor="middle" font-size="7" fill="rgba(74,67,58,0.3)" font-family="'ZCOOL XiaoWei', serif">长城</text>
+    </svg>
+  </div>
+
+  <!-- 宝塔 Pagoda (near Hangzhou / West Lake) -->
+  <div class="landmark" id="lm-pagoda" style="animation-delay: 3.1s;">
+    <svg width="24" height="40" viewBox="0 0 24 40">
+      <g stroke="rgba(74,67,58,0.3)" stroke-width="0.8" fill="none" stroke-linecap="round" filter="url(#landmark-texture)">
+        <!-- Spire -->
+        <line x1="12" y1="2" x2="12" y2="8"/>
+        <circle cx="12" cy="2" r="1.5"/>
+        <!-- Roof tiers -->
+        <path d="M 5 8 Q 8 6, 12 8 Q 16 6, 19 8"/>
+        <path d="M 6 14 Q 9 12, 12 14 Q 15 12, 18 14"/>
+        <path d="M 7 20 Q 9.5 18, 12 20 Q 14.5 18, 17 20"/>
+        <path d="M 8 26 Q 10 24, 12 26 Q 14 24, 16 26"/>
+        <!-- Body lines -->
+        <line x1="8" y1="8" x2="8" y2="14"/>
+        <line x1="16" y1="8" x2="16" y2="14"/>
+        <line x1="9" y1="14" x2="9" y2="20"/>
+        <line x1="15" y1="14" x2="15" y2="20"/>
+        <line x1="10" y1="20" x2="10" y2="26"/>
+        <line x1="14" y1="20" x2="14" y2="26"/>
+        <!-- Base -->
+        <line x1="7" y1="26" x2="17" y2="26"/>
+        <rect x="8" y="26" width="8" height="4" rx="0.5"/>
+      </g>
+      <text x="12" y="39" text-anchor="middle" font-size="6.5" fill="rgba(74,67,58,0.25)" font-family="'ZCOOL XiaoWei', serif">雷峰塔</text>
+    </svg>
+  </div>
+
+  <!-- 黄山松 Huangshan Pine (near Huangshan) -->
+  <div class="landmark" id="lm-pine" style="animation-delay: 3.3s;">
+    <svg width="36" height="34" viewBox="0 0 36 34">
+      <g stroke="rgba(74,67,58,0.3)" stroke-width="0.8" fill="none" stroke-linecap="round" filter="url(#landmark-texture)">
+        <!-- Trunk -->
+        <path d="M 18 30 Q 17 22, 16 18 Q 15 14, 17 10"/>
+        <!-- Branches with pine needle clusters -->
+        <path d="M 17 14 Q 10 12, 6 14"/>
+        <ellipse cx="5" cy="13" rx="4" ry="2.5" stroke="none" fill="rgba(74,67,58,0.06)"/>
+        <path d="M 16 18 Q 24 15, 28 17"/>
+        <ellipse cx="29" cy="16" rx="4" ry="2" stroke="none" fill="rgba(74,67,58,0.06)"/>
+        <path d="M 17 10 Q 12 7, 8 9"/>
+        <ellipse cx="7" cy="8" rx="3.5" ry="2" stroke="none" fill="rgba(74,67,58,0.06)"/>
+        <path d="M 17 10 Q 22 6, 26 8"/>
+        <ellipse cx="27" cy="7" rx="3.5" ry="2" stroke="none" fill="rgba(74,67,58,0.06)"/>
+        <!-- Top canopy -->
+        <ellipse cx="16" cy="6" rx="4" ry="3" stroke="rgba(74,67,58,0.15)" stroke-width="0.5" fill="rgba(74,67,58,0.04)"/>
+        <!-- Roots -->
+        <path d="M 18 30 Q 14 31, 12 33"/>
+        <path d="M 18 30 Q 22 31, 24 33"/>
+      </g>
+      <text x="18" y="34" text-anchor="middle" font-size="6.5" fill="rgba(74,67,58,0.25)" font-family="'ZCOOL XiaoWei', serif">迎客松</text>
+    </svg>
+  </div>
+
+  <!-- 大佛 Giant Buddha (near Leshan/Emei) -->
+  <div class="landmark" id="lm-buddha" style="animation-delay: 3.5s;">
+    <svg width="28" height="36" viewBox="0 0 28 36">
+      <g stroke="rgba(74,67,58,0.25)" stroke-width="0.7" fill="none" stroke-linecap="round" filter="url(#landmark-texture)">
+        <!-- Head/Halo -->
+        <circle cx="14" cy="8" r="5"/>
+        <circle cx="14" cy="8" r="7" stroke-dasharray="2 2" opacity="0.4"/>
+        <!-- Body outline -->
+        <path d="M 9 13 Q 8 18, 6 24 Q 5 28, 6 32"/>
+        <path d="M 19 13 Q 20 18, 22 24 Q 23 28, 22 32"/>
+        <!-- Hands in meditation -->
+        <path d="M 6 20 Q 10 22, 14 22 Q 18 22, 22 20"/>
+        <!-- Lotus base -->
+        <path d="M 4 32 Q 8 30, 14 32 Q 20 30, 24 32"/>
+        <path d="M 6 33 Q 10 35, 14 33 Q 18 35, 22 33"/>
+      </g>
+      <text x="14" y="36" text-anchor="middle" font-size="6" fill="rgba(74,67,58,0.22)" font-family="'ZCOOL XiaoWei', serif">乐山大佛</text>
+    </svg>
+  </div>
+
+  <!-- 三峡/夔门 Three Gorges (near Wushan) -->
+  <div class="landmark" id="lm-gorge" style="animation-delay: 3.7s;">
+    <svg width="40" height="28" viewBox="0 0 40 28">
+      <g stroke="rgba(74,67,58,0.28)" stroke-width="0.8" fill="none" stroke-linecap="round" filter="url(#landmark-texture)">
+        <!-- Left cliff -->
+        <path d="M 4 4 L 4 24 Q 6 22, 8 18 L 10 24"/>
+        <!-- Right cliff -->
+        <path d="M 32 4 L 32 24 Q 30 22, 28 18 L 26 24"/>
+        <!-- Cliff texture lines -->
+        <path d="M 5 8 L 7 10" opacity="0.5"/>
+        <path d="M 4 14 L 7 12" opacity="0.5"/>
+        <path d="M 31 8 L 29 10" opacity="0.5"/>
+        <path d="M 32 14 L 29 12" opacity="0.5"/>
+        <!-- River between cliffs -->
+        <path d="M 12 24 Q 16 20, 20 22 Q 24 20, 28 24" stroke="rgba(74,67,58,0.12)" stroke-width="1.5"/>
+        <!-- Mountain peaks -->
+        <path d="M 2 4 Q 4 0, 6 4" opacity="0.6"/>
+        <path d="M 30 4 Q 32 0, 34 4" opacity="0.6"/>
+        <!-- Cloud wisps -->
+        <path d="M 14 6 Q 18 4, 22 6" stroke="rgba(74,67,58,0.1)" stroke-width="0.5" stroke-dasharray="3 3"/>
+      </g>
+      <text x="20" y="28" text-anchor="middle" font-size="6" fill="rgba(74,67,58,0.22)" font-family="'ZCOOL XiaoWei', serif">夔门</text>
+    </svg>
+  </div>
+
+  <!-- 漓江山水 Li River karst peaks (near Guilin) -->
+  <div class="landmark" id="lm-liriver" style="animation-delay: 3.9s;">
+    <svg width="44" height="30" viewBox="0 0 44 30">
+      <g stroke="rgba(184,58,46,0.2)" stroke-width="0.7" fill="none" stroke-linecap="round" filter="url(#landmark-texture)">
+        <!-- Karst peaks (桂林喀斯特山峰) -->
+        <path d="M 6 24 Q 8 10, 10 6 Q 12 10, 14 24" stroke="rgba(74,67,58,0.25)"/>
+        <path d="M 12 24 Q 14 14, 17 8 Q 20 14, 22 24" stroke="rgba(74,67,58,0.22)"/>
+        <path d="M 20 24 Q 22 16, 25 10 Q 28 16, 30 24" stroke="rgba(74,67,58,0.25)"/>
+        <path d="M 28 24 Q 30 18, 32 14 Q 34 18, 36 24" stroke="rgba(74,67,58,0.2)"/>
+        <!-- Water reflection -->
+        <path d="M 4 25 Q 14 23, 24 25 Q 34 23, 42 25" stroke="rgba(74,67,58,0.1)" stroke-width="1"/>
+        <!-- Bamboo raft hint -->
+        <line x1="16" y1="25" x2="26" y2="24" stroke="rgba(74,67,58,0.12)" stroke-width="0.5"/>
+      </g>
+      <text x="22" y="30" text-anchor="middle" font-size="6" fill="rgba(184,58,46,0.3)" font-family="'ZCOOL XiaoWei', serif">漓江山水</text>
+    </svg>
+  </div>
+
+  <!-- 峨眉山门 Emei Mountain Gate -->
+  <div class="landmark" id="lm-emei" style="animation-delay: 4.1s;">
+    <svg width="30" height="34" viewBox="0 0 30 34">
+      <g stroke="rgba(74,67,58,0.25)" stroke-width="0.8" fill="none" stroke-linecap="round" filter="url(#landmark-texture)">
+        <!-- Mountain gate / 牌坊 -->
+        <path d="M 3 18 L 3 28 M 27 18 L 27 28"/>
+        <!-- Roof -->
+        <path d="M 0 18 Q 7 12, 15 16 Q 23 12, 30 18"/>
+        <path d="M 2 16 Q 7 11, 15 14 Q 23 11, 28 16"/>
+        <!-- Roof decoration -->
+        <circle cx="15" cy="11" r="1.5"/>
+        <!-- Horizontal beam -->
+        <line x1="3" y1="22" x2="27" y2="22"/>
+        <!-- Gate opening -->
+        <path d="M 10 22 L 10 28 M 20 22 L 20 28"/>
+        <path d="M 10 22 Q 15 19, 20 22"/>
+        <!-- Mountain peak behind -->
+        <path d="M 10 8 Q 15 2, 20 8" stroke="rgba(74,67,58,0.12)" stroke-width="0.5"/>
+        <!-- Steps -->
+        <path d="M 8 28 L 22 28 M 9 30 L 21 30"/>
+      </g>
+      <text x="15" y="34" text-anchor="middle" font-size="6" fill="rgba(74,67,58,0.22)" font-family="'ZCOOL XiaoWei', serif">峨眉山</text>
+    </svg>
+  </div>
+
+  <!-- Title -->
+  <div class="map-title">
+    <div class="map-title-main">笔墨山河</div>
+    <div class="map-title-sub">黄宾虹游迹图</div>
+  </div>
+
+  <!-- Year badge -->
+  <div class="year-badge">
+    <div class="year-badge-text">1949</div>
+    <div class="year-badge-ganzhi">己丑</div>
+  </div>
+
+  <!-- Overlays -->
+  <div class="map-vignette"></div>
+  <div class="map-grain"></div>
+  <div class="map-frame"></div>
+  <div class="map-frame-inner"></div>
+  <div class="corner-ornament corner-tl"></div>
+  <div class="corner-ornament corner-tr"></div>
+  <div class="corner-ornament corner-bl"></div>
+  <div class="corner-ornament corner-br"></div>
+
+  <!-- Bottom info -->
+  <div class="info-strip">
+    <div class="info-strip-text">同治四年 — 一九五五 · 游踪所至</div>
+  </div>
+
+  <!-- Decorative seal -->
+  <div class="deco-seal">
+    <svg width="28" height="28" viewBox="0 0 28 28">
+      <rect x="1" y="1" width="26" height="26" rx="1" fill="none" stroke="var(--cinnabar)" stroke-width="1.2" opacity="0.8"/>
+      <text x="14" y="10" text-anchor="middle" font-size="8" fill="var(--cinnabar)" font-family="'Ma Shan Zheng', cursive" opacity="0.8">宾虹</text>
+      <text x="14" y="22" text-anchor="middle" font-size="8" fill="var(--cinnabar)" font-family="'Ma Shan Zheng', cursive" opacity="0.8">之印</text>
+    </svg>
+  </div>
+
+  <!-- Ink particles -->
+  <div class="ink-particle" style="width:6px;height:6px;background:radial-gradient(circle,rgba(74,67,58,0.15),transparent);left:250px;top:300px;animation-delay:0s;"></div>
+  <div class="ink-particle" style="width:4px;height:4px;background:radial-gradient(circle,rgba(74,67,58,0.1),transparent);left:550px;top:200px;animation-delay:3s;"></div>
+  <div class="ink-particle" style="width:5px;height:5px;background:radial-gradient(circle,rgba(74,67,58,0.12),transparent);left:380px;top:450px;animation-delay:6s;"></div>
+  <div class="ink-particle" style="width:3px;height:3px;background:radial-gradient(circle,rgba(74,67,58,0.08),transparent);left:700px;top:380px;animation-delay:9s;"></div>
+</div>
+
+<script>
+// ═══ ECHARTS MAP INITIALIZATION ═══
+(async function() {
+  const chartDom = document.getElementById('inkMapChart');
+  const chart = echarts.init(chartDom, null, { renderer: 'svg' });
+
+  // Fetch China GeoJSON from DataV Aliyun
+  const geoRes = await fetch('https://geo.datav.aliyun.com/areas_v3/bound/100000_full.json');
+  const geoJson = await geoRes.json();
+  echarts.registerMap('china', geoJson);
+
+  // Location data
+  const locations = [
+    { name: '北京', coords: [116.40, 39.90], active: false, size: 'lg' },
+    { name: '上海', coords: [121.47, 31.23], active: false, size: 'lg' },
+    { name: '杭州', coords: [120.15, 30.27], active: false, size: 'md' },
+    { name: '南京', coords: [118.80, 32.06], active: false, size: 'md' },
+    { name: '桂林', coords: [110.29, 25.27], active: true, size: 'lg' },
+    { name: '阳朔', coords: [110.18, 24.78], active: true, size: 'md' },
+    { name: '漓江', coords: [110.30, 25.00], active: true, size: 'sm' },
+    { name: '成都', coords: [104.07, 30.57], active: false, size: 'lg' },
+    { name: '峨眉', coords: [103.33, 29.60], active: false, size: 'sm' },
+    { name: '黄山', coords: [118.17, 30.13], active: false, size: 'md' },
+    { name: '广州', coords: [113.26, 23.13], active: false, size: 'md' },
+    { name: '武汉', coords: [114.31, 30.59], active: false, size: 'md' },
+    { name: '歙县', coords: [118.44, 29.86], active: false, size: 'sm' },
+    { name: '重庆', coords: [106.55, 29.56], active: false, size: 'md' },
+    { name: '金华', coords: [119.65, 29.08], active: false, size: 'sm' },
+    { name: '巫山', coords: [109.88, 31.07], active: false, size: 'sm' },
+    { name: '青城山', coords: [103.57, 30.90], active: false, size: 'sm' },
+    { name: '乐山', coords: [103.77, 29.55], active: false, size: 'sm' },
+  ];
+
+  // Build scatter data
+  const scatterData = locations.map(loc => ({
+    name: loc.name,
+    value: [...loc.coords, loc.active ? 1 : 0],
+    active: loc.active,
+    size: loc.size,
+    itemStyle: loc.active
+      ? { color: 'rgba(184, 58, 46, 0.9)', borderColor: '#B83A2E', borderWidth: 2 }
+      : { color: 'rgba(74, 67, 58, 0.5)', borderColor: 'transparent', borderWidth: 0 },
+    symbol: loc.active ? 'rect' : 'circle',
+    symbolSize: loc.active
+      ? (loc.size === 'lg' ? 28 : loc.size === 'md' ? 22 : 18)
+      : (loc.size === 'lg' ? 12 : loc.size === 'md' ? 9 : 7),
+    label: {
+      show: true,
+      position: loc.active ? 'inside' : 'bottom',
+      formatter: loc.name,
+      color: loc.active ? '#B83A2E' : 'rgba(74, 67, 58, 0.6)',
+      fontSize: loc.active ? 10 : 9,
+      fontFamily: loc.active ? "'Ma Shan Zheng', cursive" : "'ZCOOL XiaoWei', serif",
+      distance: loc.active ? 0 : 8,
+    }
+  }));
+
+  // Active route
+  const activeRoute = {
+    coords: [[121.47, 31.23], [120.15, 30.27], [119.65, 29.08], [110.29, 25.27], [110.18, 24.78]],
+  };
+
+  // Background routes
+  const bgRoutes = [
+    { coords: [[121.47, 31.23], [116.40, 39.90]] },
+    { coords: [[121.47, 31.23], [118.80, 32.06]] },
+    { coords: [[121.47, 31.23], [118.17, 30.13]] },
+    { coords: [[104.07, 30.57], [103.33, 29.60]] },
+    { coords: [[104.07, 30.57], [103.77, 29.55]] },
+    { coords: [[104.07, 30.57], [106.55, 29.56]] },
+    { coords: [[114.31, 30.59], [109.88, 31.07]] },
+    { coords: [[121.47, 31.23], [113.26, 23.13]] },
+  ];
+
+  const option = {
+    backgroundColor: 'transparent',
+    geo: {
+      map: 'china',
+      roam: false,
+      center: [108, 33],
+      zoom: 1.2,
+      aspectScale: 0.78,
+      itemStyle: {
+        areaColor: {
+          type: 'radial',
+          x: 0.5, y: 0.4, r: 0.8,
+          colorStops: [
+            { offset: 0, color: 'rgba(74, 67, 58, 0.05)' },
+            { offset: 0.6, color: 'rgba(74, 67, 58, 0.03)' },
+            { offset: 1, color: 'rgba(74, 67, 58, 0.06)' },
+          ],
+        },
+        borderColor: 'rgba(74, 67, 58, 0.2)',
+        borderWidth: 0.8,
+      },
+      emphasis: {
+        disabled: true,
+      },
+      select: {
+        disabled: true,
+      },
+      label: { show: false },
+      // South China Sea inset
+      regions: [
+        {
+          name: '南海诸岛',
+          itemStyle: { opacity: 0.3 },
+          label: { show: false },
+        }
+      ],
+    },
+    series: [
+      // Background route lines
+      ...bgRoutes.map(route => ({
+        type: 'lines',
+        coordinateSystem: 'geo',
+        geoIndex: 0,
+        zlevel: 1,
+        silent: true,
+        polyline: false,
+        data: [{ coords: route.coords }],
+        lineStyle: {
+          color: 'rgba(74, 61, 46, 0.15)',
+          width: 1,
+          type: 'dashed',
+          opacity: 1,
+          curveness: 0.2,
+        },
+        effect: { show: false },
+      })),
+      // Active route line
+      {
+        type: 'lines',
+        coordinateSystem: 'geo',
+        geoIndex: 0,
+        zlevel: 2,
+        silent: true,
+        polyline: false,
+        data: [{
+          coords: activeRoute.coords,
+          lineStyle: {
+            color: '#B83A2E',
+            width: 2.5,
+            type: 'dashed',
+            opacity: 0.6,
+            curveness: 0.15,
+          },
+        }],
+        effect: {
+          show: true,
+          period: 6,
+          trailLength: 0.4,
+          symbol: 'circle',
+          symbolSize: 4,
+          color: '#B83A2E',
+        },
+      },
+      // Location markers
+      {
+        type: 'scatter',
+        coordinateSystem: 'geo',
+        geoIndex: 0,
+        zlevel: 3,
+        data: scatterData,
+      },
+    ],
+    animation: true,
+    animationDuration: 1500,
+    animationEasingUpdate: 'cubicInOut',
+  };
+
+  chart.setOption(option);
+
+  // ═══ POSITION LANDMARK BUILDINGS ═══
+  // After chart renders, convert geo coords to pixel positions
+  setTimeout(() => {
+    const landmarkCoords = {
+      'lm-greatwall': [116.0, 41.0],   // Great Wall north of Beijing
+      'lm-pagoda':    [120.15, 30.6],   // Leifeng Pagoda near Hangzhou
+      'lm-pine':      [118.5, 30.5],    // Welcome Pine near Huangshan
+      'lm-buddha':    [103.77, 29.3],   // Leshan Giant Buddha
+      'lm-gorge':     [109.5, 31.3],    // Kuimen / Qutang Gorge near Wushan
+      'lm-liriver':   [110.5, 24.9],    // Li River near Guilin/Yangshuo
+      'lm-emei':      [103.33, 29.8],   // Emei Mountain
+    };
+
+    Object.entries(landmarkCoords).forEach(([id, coords]) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      const pixel = chart.convertToPixel('geo', coords);
+      if (pixel) {
+        el.style.left = (pixel[0] - 20) + 'px';
+        el.style.top = (pixel[1] - 18) + 'px';
+      }
+    });
+  }, 2000);
+})();
+</script>
+</body>
+</html>
