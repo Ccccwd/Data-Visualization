@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, onUnmounted, watch } from 'vue'
 import * as echarts from 'echarts'
 import { useGlobalStore } from '../../stores/globalStore'
 
@@ -31,7 +31,7 @@ function buildGraphOptions(people: string[], selectedPerson: string | null) {
   const nodes: GraphNode[] = []
   const links: GraphLink[] = []
 
-  people.forEach((person, idx) => {
+  people.forEach((person) => {
     const info = peopleData[person]
     const count = info?.count || 1
     const isSelected = person === selectedPerson
@@ -98,9 +98,38 @@ function buildGraphOptions(people: string[], selectedPerson: string | null) {
   return { nodes, links }
 }
 
+function handleResize() {
+  chart?.resize()
+}
+
 onMounted(() => {
   if (!chartContainer.value) return
   chart = echarts.init(chartContainer.value)
+
+  // Register click handler for graph nodes
+  chart.on('click', { dataType: 'node' }, (params: any) => {
+    if (params.name) {
+      store.selectPerson(params.name)
+    }
+  })
+
+  // Cursor style on hover
+  chart.on('mouseover', { dataType: 'node' }, () => {
+    if (chartContainer.value) chartContainer.value.style.cursor = 'pointer'
+  })
+  chart.on('mouseout', { dataType: 'node' }, () => {
+    if (chartContainer.value) chartContainer.value.style.cursor = 'default'
+  })
+
+  window.addEventListener('resize', handleResize)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', handleResize)
+  if (chart) {
+    chart.dispose()
+    chart = null
+  }
 })
 
 watch(

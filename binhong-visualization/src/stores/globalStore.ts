@@ -101,6 +101,28 @@ export const useGlobalStore = defineStore('global', () => {
     selectedLocation.value = location
     activeMode.value = 'geography'
     selectedEntryIndex.value = 0
+
+    // Auto-derive the most frequent year for timeline snap
+    const locEntries = data.entries.filter(e =>
+      e.locations.some(l => l.name === location) || e.primaryLocation === location
+    )
+    if (locEntries.length > 0) {
+      const yearCounts = new Map<number, number>()
+      locEntries.forEach(e => {
+        if (e.year !== null) {
+          yearCounts.set(e.year, (yearCounts.get(e.year) || 0) + 1)
+        }
+      })
+      let maxYear = 0
+      let maxCount = 0
+      yearCounts.forEach((count, year) => {
+        if (count > maxCount) {
+          maxCount = count
+          maxYear = year
+        }
+      })
+      selectedYear.value = maxYear || null
+    }
   }
 
   function resetSelection() {

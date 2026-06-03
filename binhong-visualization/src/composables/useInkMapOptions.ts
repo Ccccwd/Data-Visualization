@@ -5,11 +5,13 @@ interface LocationMarker {
   name: string
   coords: [number, number]
   active: boolean
+  selected: boolean
   size: 'lg' | 'md' | 'sm'
 }
 
 // ═══════════════════════════════════════
 // Background routes: 黄宾虹一生主要旅行路线（固定）
+// 坐标格式: [longitude, latitude]
 // ═══════════════════════════════════════
 const BACKGROUND_ROUTES: [number, number][][] = [
   // 上海出发
@@ -30,12 +32,14 @@ const BACKGROUND_ROUTES: [number, number][][] = [
 /** Build ink-dot + seal-stamp scatter data */
 function buildScatterData(
   allLocations: GeoLocation[],
-  activeLocationNames: Set<string>
+  activeLocationNames: Set<string>,
+  selectedLocation: string | null
 ): LocationMarker[] {
   return allLocations.map(loc => ({
     name: loc.name,
     coords: loc.coords,
     active: activeLocationNames.has(loc.name),
+    selected: loc.name === selectedLocation,
     size: loc.mentionCount > 5 ? 'lg' : loc.mentionCount > 2 ? 'md' : 'sm',
   }))
 }
@@ -46,34 +50,74 @@ export function buildInkMapOptions(
   activeLocations: { name: string; coords: [number, number] | null }[],
   selectedLocation: string | null,
   activeEntry: Entry | null,
-  filteredEntries: Entry[]
+  _filteredEntries: Entry[]
 ): EChartsOption {
   const activeNameSet = new Set(activeLocations.map(l => l.name))
-  const scatterData = buildScatterData(allLocations, activeNameSet)
+  const scatterData = buildScatterData(allLocations, activeNameSet, selectedLocation)
 
-  // Map each scatter point
-  const scatterSeriesData = scatterData.map(loc => ({
-    name: loc.name,
-    value: [...loc.coords, loc.active ? 1 : 0] as [number, number, number],
-    active: loc.active,
-    size: loc.size,
-    itemStyle: loc.active
-      ? { color: 'rgba(184,58,46,0.9)', borderColor: '#B83A2E', borderWidth: 2 }
-      : { color: 'rgba(74,67,58,0.5)', borderColor: 'transparent', borderWidth: 0 },
-    symbol: loc.active ? 'rect' : 'circle',
-    symbolSize: loc.active
-      ? (loc.size === 'lg' ? 28 : loc.size === 'md' ? 22 : 18)
-      : (loc.size === 'lg' ? 12 : loc.size === 'md' ? 9 : 7),
-    label: {
-      show: true,
-      position: loc.active ? 'inside' as const : 'bottom' as const,
-      formatter: loc.name,
-      color: loc.active ? '#B83A2E' : 'rgba(74,67,58,0.6)',
-      fontSize: loc.active ? 10 : 9,
-      fontFamily: loc.active ? 'Ma Shan Zheng, cursive' : 'ZCOOL XiaoWei, serif',
-      distance: loc.active ? 0 : 8,
-    },
-  }))
+  // Map each scatter point with selectedLocation highlight
+  const scatterSeriesData = scatterData.map(loc => {
+    // Determine styling based on state: selected > active > inactive
+    let color: string
+    let borderColor: string
+    let borderWidth: number
+    let symbol: string
+    let symbolSize: number
+    let labelColor: string
+    let labelFontSize: number
+    let labelFontFamily: string
+    let labelPosition: 'inside' | 'bottom'
+
+    if (loc.selected) {
+      // Highest priority: selected location
+      color = 'rgba(184,58,46,1)'
+      borderColor = '#B83A2E'
+      borderWidth = 3
+      symbol = 'pin'
+      symbolSize = loc.size === 'lg' ? 36 : loc.size === 'md' ? 30 : 26
+      labelColor = '#B83A2E'
+      labelFontSize = 12
+      labelFontFamily = 'Ma Shan Zheng, cursive'
+      labelPosition = 'inside'
+    } else if (loc.active) {
+      color = 'rgba(184,58,46,0.9)'
+      borderColor = '#B83A2E'
+      borderWidth = 2
+      symbol = 'rect'
+      symbolSize = loc.size === 'lg' ? 28 : loc.size === 'md' ? 22 : 18
+      labelColor = '#B83A2E'
+      labelFontSize = 10
+      labelFontFamily = 'Ma Shan Zheng, cursive'
+      labelPosition = 'inside'
+    } else {
+      color = 'rgba(74,67,58,0.5)'
+      borderColor = 'transparent'
+      borderWidth = 0
+      symbol = 'circle'
+      symbolSize = loc.size === 'lg' ? 12 : loc.size === 'md' ? 9 : 7
+      labelColor = 'rgba(74,67,58,0.6)'
+      labelFontSize = 9
+      labelFontFamily = 'ZCOOL XiaoWei, serif'
+      labelPosition = 'bottom'
+    }
+
+    return {
+      name: loc.name,
+      value: [...loc.coords, loc.active ? 1 : 0] as [number, number, number],
+      itemStyle: { color, borderColor, borderWidth },
+      symbol,
+      symbolSize,
+      label: {
+        show: true,
+        position: labelPosition,
+        formatter: loc.name,
+        color: labelColor,
+        fontSize: labelFontSize,
+        fontFamily: labelFontFamily,
+        distance: labelPosition === 'inside' ? 0 : 8,
+      },
+    }
+  })
 
   // Background route lines (always visible, static)
   const bgLineSeries = BACKGROUND_ROUTES.map(r => ({
@@ -94,13 +138,22 @@ export function buildInkMapOptions(
     effect: { show: false },
   }))
 
-  // Active route: connect locations from the selected entry
+  // Active route: draw individual line segments between consecutive locations
   let activeRouteSeries: any = null
   if (activeEntry) {
-    const activeCoords = activeEntry.locations
-      .filter(l => l.coords)
-      .map(l => l.coords as [number, number])
-    if (activeCoords.length >= 2) {
+    const locsWithCoords = activeEntry.locations.filter(l => l.coords)
+    if (locsWithCoords.length >= 2) {
+      // Build separate line segments between consecutive locations
+      const segments: { coords: [number, number][] }[] = []
+      for (let i = 0; i < locsWithCoords.length - 1; i++) {
+        segments.push({
+          coords: [
+            locsWithCoords[i].coords as [number, number],
+            locsWithCoords[i + 1].coords as [number, number],
+          ],
+        })
+      }
+
       activeRouteSeries = {
         type: 'lines' as const,
         coordinateSystem: 'geo',
@@ -108,22 +161,20 @@ export function buildInkMapOptions(
         zlevel: 2,
         silent: true,
         polyline: false,
-        data: [{
-          coords: activeCoords,
-          lineStyle: {
-            color: '#B83A2E',
-            width: 2.5,
-            type: 'dashed' as const,
-            opacity: 0.6,
-            curveness: 0.15,
-          },
-        }],
+        data: segments,
+        lineStyle: {
+          color: '#B83A2E',
+          width: 2,
+          type: 'dashed' as const,
+          opacity: 0.5,
+          curveness: 0.2,
+        },
         effect: {
           show: true,
           period: 6,
-          trailLength: 0.4,
+          trailLength: 0.3,
           symbol: 'circle',
-          symbolSize: 4,
+          symbolSize: 3,
           color: '#B83A2E',
         },
       }
@@ -139,7 +190,7 @@ export function buildInkMapOptions(
     const target = primaryLoc?.coords || firstLoc?.coords
     if (target) {
       geoCenter = target
-      geoZoom = 8
+      geoZoom = 5
     }
   }
 
@@ -160,8 +211,8 @@ export function buildInkMapOptions(
     geo: {
       map: 'china',
       roam: false,
-      center: geoCenter || [110, 30],   // 聚焦中国中东部
-      zoom: geoZoom || 4,               // 从 1.2 提升到 4，放大很多
+      center: geoCenter || [105, 35],
+      zoom: geoZoom || 1.15,
       aspectScale: 0.78,
       itemStyle: {
         areaColor: {

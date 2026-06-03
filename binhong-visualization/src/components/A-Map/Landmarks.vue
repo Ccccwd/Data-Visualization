@@ -4,6 +4,8 @@ import { ref, onMounted, watch } from 'vue'
 const props = defineProps<{
   chart: any // ECharts instance
   visible: boolean
+  /** Incremented each time the map view changes (zoom/pan/option update) */
+  viewRevision: number
 }>()
 
 interface LandmarkDef {
@@ -26,7 +28,7 @@ const landmarks: LandmarkDef[] = [
 
 function positionLandmarks() {
   if (!props.chart || !props.visible) return
-  landmarks.forEach((lm, i) => {
+  landmarks.forEach((lm, _i) => {
     const el = document.getElementById(lm.id)
     if (!el) return
     try {
@@ -34,7 +36,6 @@ function positionLandmarks() {
       if (p) {
         el.style.left = (p[0] - 18) + 'px'
         el.style.top = (p[1] - 16) + 'px'
-        el.style.animationDelay = (3 + i * 0.2) + 's'
       }
     } catch {
       // fallback pixel coords
@@ -49,8 +50,15 @@ onMounted(() => {
   setTimeout(positionLandmarks, 2500)
 })
 
+// Reposition whenever the chart instance changes
 watch(() => props.chart, () => {
   setTimeout(positionLandmarks, 500)
+})
+
+// Reposition whenever the map view changes (zoom/pan/option update)
+watch(() => props.viewRevision, () => {
+  // Wait for ECharts to finish rendering the new geo state
+  setTimeout(positionLandmarks, 100)
 })
 </script>
 
@@ -84,6 +92,8 @@ watch(() => props.chart, () => {
   position: absolute;
   opacity: 0;
   animation: fadeInLandmark 1.2s ease forwards;
+  transition: left 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              top 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 @keyframes fadeInLandmark {
   from { opacity: 0; transform: translateY(6px); }

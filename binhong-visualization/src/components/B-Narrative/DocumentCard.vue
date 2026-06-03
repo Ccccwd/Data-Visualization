@@ -8,10 +8,22 @@ const store = useGlobalStore()
 const displayYear = computed(() => {
   if (!store.activeEntry) return { year: '', ganzhi: '', age: '' }
   const entry = store.activeEntry
+  const birthYear = store.metadata.birthYear
+  const age = entry.year ? entry.year - birthYear : null
+  let ageLabel = ''
+  if (age !== null && age > 0) {
+    if (age >= 60) {
+      ageLabel = `${age}叟`
+    } else if (age >= 40) {
+      ageLabel = `${age}叟`
+    } else if (age >= 10) {
+      ageLabel = `${age}岁`
+    }
+  }
   return {
     year: entry.year ? String(entry.year) : '—',
     ganzhi: entry.ganzhi || '',
-    age: '',  // Could derive from birth year
+    age: ageLabel,
   }
 })
 
@@ -58,7 +70,7 @@ watch(() => store.activeEntry, () => {
         </div>
         <div class="doc-ganzhi-column" v-if="displayYear.ganzhi">
           <div class="doc-ganzhi-char">{{ displayYear.ganzhi }}</div>
-          <div class="doc-ganzhi-age">八十六叟</div>
+          <div class="doc-ganzhi-age" v-if="displayYear.age">{{ displayYear.age }}</div>
         </div>
       </div>
 
