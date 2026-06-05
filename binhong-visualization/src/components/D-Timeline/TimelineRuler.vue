@@ -21,7 +21,7 @@ function getGanzhi(year: number): string {
 
 function getTickHeight(count: number): number {
   const maxCount = Math.max(...years.value.map(y => y.entryCount), 1)
-  return Math.max(3, (count / maxCount) * 30)
+  return Math.max(3, (count / maxCount) * 40)
 }
 
 function handleTickClick(year: number) {
@@ -39,7 +39,7 @@ watch(() => store.selectedYear, async (year) => {
 })
 
 const isDimmed = computed(() => store.activeMode === 'geography')
-const showEveryNth = 5
+const showEveryNth = 10
 </script>
 
 <template>
@@ -199,11 +199,11 @@ const showEveryNth = 5
   display: flex;
   flex-direction: column;
   align-items: center;
+  flex: 1 1 0;
   flex-shrink: 0;
   cursor: pointer;
   position: relative;
-  min-width: 18px;
-  width: 18px;
+  min-width: 12px;
   z-index: 1;
 }
 
@@ -264,7 +264,7 @@ const showEveryNth = 5
   left: 50%;
   transform: translateX(-50%);
   font-family: $font-sans;
-  font-size: 8px;
+  font-size: 11px;
   font-weight: 300;
   color: $ink-dan;
   transition: all .3s;
@@ -276,7 +276,7 @@ const showEveryNth = 5
 .tick.active .tick__year {
   color: $cinnabar;
   font-weight: 500;
-  font-size: 10px;
+  font-size: 14px;
 }
 
 // Active indicator

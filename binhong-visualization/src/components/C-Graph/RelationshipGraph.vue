@@ -200,8 +200,8 @@ watch(
     z-index: 5;
     font-family: $font-display;
     font-size: 16px;
-    color: $ink-dan;
-    opacity: .35;
+    color: $ink-zhong;
+    opacity: .6;
     letter-spacing: 3px;
     pointer-events: none;
   }
