@@ -107,7 +107,9 @@ export function buildInkMapOptions(
   selectedLocation: string | null,
   activeEntry: Entry | null,
   _filteredEntries: Entry[],
-  provinceNames?: string[]
+  provinceNames?: string[],
+  viewTheme: 'chronology' | 'turmoil' | 'politics' | 'art' = 'chronology',
+  migrationRoutes: any[] = []
 ): EChartsOption {
   const activeNameSet = new Set(activeLocations.map(l => l.name))
 
@@ -187,14 +189,17 @@ export function buildInkMapOptions(
   // Active route segments
   let activeRouteSeries: any = null
   if (activeEntry) {
-    const locsWithCoords = activeEntry.locations.filter(l => l.coords)
-    if (locsWithCoords.length >= 2) {
+    // Filter to valid coords within China bounds
+    const validLocs = activeEntry.locations.filter(l =>
+      l.coords && l.coords[0] >= 73 && l.coords[0] <= 135 && l.coords[1] >= 18 && l.coords[1] <= 53
+    )
+    if (validLocs.length >= 2) {
       const segments: { coords: [number, number][] }[] = []
-      for (let i = 0; i < locsWithCoords.length - 1; i++) {
+      for (let i = 0; i < validLocs.length - 1; i++) {
         segments.push({
           coords: [
-            locsWithCoords[i].coords as [number, number],
-            locsWithCoords[i + 1].coords as [number, number],
+            validLocs[i].coords as [number, number],
+            validLocs[i + 1].coords as [number, number],
           ],
         })
       }
@@ -249,6 +254,77 @@ export function buildInkMapOptions(
   const series: any[] = [
     ...bgLineSeries,
     ...(activeRouteSeries ? [activeRouteSeries] : []),
+  ]
+
+  // ═══ Migration routes (turmoil view) ═══
+  if (viewTheme === 'turmoil' && migrationRoutes.length > 0) {
+    migrationRoutes.forEach((route: any) => {
+      if (route.waypoints.length >= 2) {
+        const segments: { coords: [number, number][] }[] = []
+        for (let i = 0; i < route.waypoints.length - 1; i++) {
+          segments.push({ coords: [route.waypoints[i], route.waypoints[i + 1]] })
+        }
+        series.push({
+          type: 'lines' as const,
+          coordinateSystem: 'geo',
+          geoIndex: 0,
+          zlevel: 2,
+          silent: true,
+          polyline: false,
+          data: segments,
+          lineStyle: {
+            color: 'rgba(184,58,46,0.5)',
+            width: 2.5,
+            type: 'dashed' as const,
+            opacity: 0.7,
+            curveness: 0.2,
+          },
+          effect: {
+            show: true,
+            period: 8,
+            trailLength: 0.4,
+            symbol: 'circle',
+            symbolSize: 4,
+            color: '#B83A2E',
+          },
+        })
+      }
+      // Single-point stay marker (like 滞留北平)
+      if (route.waypoints.length === 1) {
+        series.push({
+          type: 'effectScatter' as const,
+          coordinateSystem: 'geo',
+          geoIndex: 0,
+          zlevel: 3,
+          silent: true,
+          showEffectOn: 'render',
+          rippleEffect: { brushType: 'stroke', scale: 6, period: 5 },
+          data: [{
+            name: route.label,
+            value: [...route.waypoints[0], 1],
+            symbolSize: 20,
+            itemStyle: {
+              color: 'rgba(74,67,58,0.15)',
+              shadowBlur: 25,
+              shadowColor: 'rgba(74,67,58,0.3)',
+            },
+            label: {
+              show: true,
+              position: 'top' as const,
+              formatter: route.label,
+              color: 'rgba(74,67,58,0.6)',
+              fontSize: 11,
+              fontFamily: 'ZCOOL XiaoWei, serif',
+              distance: 12,
+            },
+          }],
+        })
+      }
+    })
+  }
+
+  // ═══ Scatter + effectScatter (always present) ═══
+  series.push(
     {
       type: 'scatter' as const,
       coordinateSystem: 'geo',
@@ -266,8 +342,8 @@ export function buildInkMapOptions(
       showEffectOn: 'render',
       rippleEffect: { brushType: 'stroke', scale: 3, period: 4 },
       data: activeData,
-    },
-  ]
+    }
+  )
 
   return {
     backgroundColor: 'transparent',

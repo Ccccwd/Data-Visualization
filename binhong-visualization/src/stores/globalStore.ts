@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import type { ActiveMode, Entry, BinhongData } from '../types'
+import type { ActiveMode, Entry, BinhongData, ViewTheme } from '../types'
 import binhongData from '../data/binhong_data.json'
 
 const data = binhongData as unknown as BinhongData
@@ -13,12 +13,60 @@ export const useGlobalStore = defineStore('global', () => {
   const activeMode = ref<ActiveMode>('idle')
   const selectedEntryIndex = ref(0)
 
+  // ═══ Narrative state ═══
+  const viewTheme = ref<ViewTheme>('chronology')
+
   // All data
   const entries = computed(() => data.entries)
   const timeline = computed(() => data.timeline)
   const people = computed(() => data.people)
   const geodata = computed(() => data.geodata)
   const metadata = computed(() => data.metadata)
+
+  // ═══ Narrative computed ═══
+  const historyContext = computed(() => data.historyContext || [])
+  const politicalProfiles = computed(() => data.politicalProfiles || [])
+  const migrationRoutes = computed(() => data.migrationRoutes || [])
+
+  // Current year's pressure (0-10)
+  const currentPressure = computed(() => {
+    if (!selectedYear.value) return 0
+    const ctx = (data.historyContext || []).find((h: any) => h.year === selectedYear.value)
+    return ctx?.pressureIndex ?? 0
+  })
+
+  // Current year's era context (for DocumentCard era footnote)
+  const currentEraContext = computed(() => {
+    if (!selectedYear.value) return null
+    return (data.historyContext || []).find((h: any) => h.year === selectedYear.value) ?? null
+  })
+
+  // War-related years set
+  const warYears = computed(() => {
+    return new Set(
+      (data.historyContext || [])
+        .filter((h: any) => h.isWarRelated)
+        .map((h: any) => h.year)
+    )
+  })
+
+  // Political turning-point years set
+  const politicalYears = computed(() => {
+    return new Set(
+      (data.historyContext || [])
+        .filter((h: any) => h.isPoliticalTurning)
+        .map((h: any) => h.year)
+    )
+  })
+
+  // Art milestone years set
+  const artMilestoneYears = computed(() => {
+    return new Set(
+      (data.historyContext || [])
+        .filter((h: any) => h.isArtMilestone)
+        .map((h: any) => h.year)
+    )
+  })
 
   // Filtered data based on current selection
   const filteredEntries = computed<Entry[]>(() => {
@@ -133,17 +181,41 @@ export const useGlobalStore = defineStore('global', () => {
     selectedEntryIndex.value = 0
   }
 
+  function setViewTheme(theme: ViewTheme) {
+    viewTheme.value = theme
+    if (theme === 'turmoil') {
+      const years = [...warYears.value].sort()
+      if (years.length > 0) selectYear(years[0])
+    } else if (theme === 'politics') {
+      const years = [...politicalYears.value].sort()
+      if (years.length > 0) selectYear(years[0])
+    } else if (theme === 'art') {
+      const years = [...artMilestoneYears.value].sort()
+      if (years.length > 0) selectYear(years[0])
+    }
+    // chronology: keep current selection, don't reset
+  }
+
   return {
     selectedYear,
     selectedPerson,
     selectedLocation,
     activeMode,
     selectedEntryIndex,
+    viewTheme,
     entries,
     timeline,
     people,
     geodata,
     metadata,
+    historyContext,
+    politicalProfiles,
+    migrationRoutes,
+    currentPressure,
+    currentEraContext,
+    warYears,
+    politicalYears,
+    artMilestoneYears,
     filteredEntries,
     activeEntry,
     activePeople,
@@ -152,5 +224,6 @@ export const useGlobalStore = defineStore('global', () => {
     selectPerson,
     selectLocation,
     resetSelection,
+    setViewTheme,
   }
 })

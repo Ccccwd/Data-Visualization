@@ -1,0 +1,61 @@
+Total entries analyzed: 1811
+Entries with people: 614
+Total unique people: 654
+Total people mentions: 1091
+
+============================================================
+
+Top 30 most frequently mentioned people:
+ 1. 賓虹: 120 times
+ 2. 于右任: 30 times
+ 3. 黄樸存: 26 times
+ 4. 蔡元培: 19 times
+ 5. 樸存: 15 times
+ 6. 林散之: 15 times
+ 7. 柱尊: 13 times
+ 8. 居素: 11 times
+ 9. 芚公: 8 times
+10. 居素吾: 8 times
+11. 谷雛: 7 times
+12. 王中秀: 6 times
+13. 中秀: 5 times
+14. 蘭史: 5 times
+15. 虹老: 5 times
+16. 白山: 5 times
+17. 李可染: 5 times
+18. 散之: 5 times
+19. 溥儒: 5 times
+20. 天如: 5 times
+21. 紉秋: 5 times
+22. 國華: 5 times
+23. 貞晦: 4 times
+24. 樸安: 4 times
+25. 哲夫: 4 times
+26. 農髯: 4 times
+27. 般若: 4 times
+28. 一亭: 4 times
+29. 斠玄: 4 times
+30. 金城: 4 times
+
+
+Top 20 people for political analysis:
+ 1. 賓虹
+ 2. 于右任
+ 3. 黄樸存
+ 4. 蔡元培
+ 5. 樸存
+ 6. 林散之
+ 7. 柱尊
+ 8. 居素
+ 9. 芚公
+10. 居素吾
+11. 谷雛
+12. 王中秀
+13. 中秀
+14. 蘭史
+15. 虹老
+16. 白山
+17. 李可染
+18. 散之
+19. 溥儒
+20. 天如
