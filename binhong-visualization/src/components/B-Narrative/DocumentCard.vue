@@ -28,13 +28,21 @@ const displayYear = computed(() => {
 })
 
 const displayLocation = computed(() => {
-  if (!store.activeEntry) return ''
-  return store.activeEntry.locations.map(l => l.name).join(' · ')
+  // Prefer year summary locations, fallback to activeLocations
+  if (store.currentYearSummary && store.currentYearSummary.locations.length > 0) {
+    return store.currentYearSummary.locations.map(l => l.name).join(' · ')
+  }
+  if (store.activeLocations.length > 0) {
+    return store.activeLocations.map(l => l.name).join(' · ')
+  }
+  return ''
 })
 
 const displayText = computed(() => {
-  if (!store.activeEntry) return '请点击时间轴、地图标记或关系图谱中的人物开始探索'
-  return store.activeEntry.text
+  // Show actual chronology text from 年谱
+  if (store.currentYearSummary) return store.currentYearSummary.text
+  if (store.activeEntry) return store.activeEntry.text
+  return '请点击时间轴、地图标记或关系图谱中的人物开始探索'
 })
 
 const hasSeals = computed(() => {
@@ -49,7 +57,7 @@ const eraContext = computed(() => {
 
 const showEraContext = ref(false)
 
-watch(() => store.activeEntry, () => {
+watch(() => store.selectedYear, () => {
   showEraContext.value = false
   if (eraContext.value) {
     setTimeout(() => { showEraContext.value = true }, 400)
@@ -186,8 +194,8 @@ watch(() => store.activeEntry, () => {
 }
 
 .doc-location {
-  font-family: $font-sans; font-size: 10px; font-weight: 300;
-  color: $ink-dan; margin-top: 3px; letter-spacing: 2px;
+  font-family: $font-label; font-size: 13px; font-weight: 400;
+  color: $ink-zhong; margin-top: 4px; letter-spacing: 3px;
 }
 
 .doc-ganzhi-column {
@@ -277,8 +285,9 @@ watch(() => store.activeEntry, () => {
 }
 
 .doc-era-context__label {
-  font-family: $font-label; font-size: 10px;
-  color: rgba($cinnabar, 0.65); letter-spacing: 1px; margin-right: 4px;
+  font-family: $font-label; font-size: 11px;
+  color: rgba($cinnabar, 0.7); letter-spacing: 2px; margin-right: 6px;
+  display: inline-block;
 }
 
 // Era footnote transition

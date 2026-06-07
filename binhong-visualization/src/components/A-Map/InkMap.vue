@@ -55,8 +55,7 @@ async function initMap() {
       store.activeEntry,
       store.filteredEntries,
       provinceNames.value,
-      store.viewTheme,
-      store.migrationRoutes
+      store.viewTheme
     )
     chart.setOption(options, true)
 
@@ -99,7 +98,6 @@ watch(
     store.activeLocations,
     store.geodata,
     store.viewTheme,
-    store.migrationRoutes,
   ],
   () => {
     if (!chartInstance.value || !mapReady.value) return
@@ -110,10 +108,9 @@ watch(
       store.activeEntry,
       store.filteredEntries,
       provinceNames.value,
-      store.viewTheme,
-      store.migrationRoutes
+      store.viewTheme
     )
-    chartInstance.value.setOption(options, false)
+    chartInstance.value.setOption(options, true)
   },
   { deep: true }
 )

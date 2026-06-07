@@ -27,6 +27,13 @@ export const useGlobalStore = defineStore('global', () => {
   const historyContext = computed(() => data.historyContext || [])
   const politicalProfiles = computed(() => data.politicalProfiles || [])
   const migrationRoutes = computed(() => data.migrationRoutes || [])
+  const yearSummaries = computed(() => data.yearSummaries || [])
+
+  // Current year's chronology text (from actual 年谱)
+  const currentYearSummary = computed(() => {
+    if (!selectedYear.value) return null
+    return yearSummaries.value.find((s: any) => s.year === selectedYear.value) ?? null
+  })
 
   // Current year's pressure (0-10)
   const currentPressure = computed(() => {
@@ -100,9 +107,22 @@ export const useGlobalStore = defineStore('global', () => {
 
   const activeLocations = computed(() => {
     const locMap = new Map<string, [number, number]>()
+    // Priority 1: year summary locations (from actual chronology)
+    if (selectedYear.value) {
+      const summary = yearSummaries.value.find((s: any) => s.year === selectedYear.value)
+      if (summary && summary.locations.length > 0) {
+        summary.locations.forEach((l: any) => {
+          if (l.coords && !locMap.has(l.name)) {
+            locMap.set(l.name, l.coords)
+          }
+        })
+        return Array.from(locMap.entries()).map(([name, coords]) => ({ name, coords }))
+      }
+    }
+    // Priority 2: fallback to old entries
     filteredEntries.value.forEach(e => {
       e.locations.forEach(l => {
-        if (!locMap.has(l.name) && l.coords) {
+        if (l.coords && !locMap.has(l.name)) {
           locMap.set(l.name, l.coords)
         }
       })
@@ -211,6 +231,8 @@ export const useGlobalStore = defineStore('global', () => {
     historyContext,
     politicalProfiles,
     migrationRoutes,
+    yearSummaries,
+    currentYearSummary,
     currentPressure,
     currentEraContext,
     warYears,

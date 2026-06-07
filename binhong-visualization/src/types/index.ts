@@ -108,6 +108,15 @@ export interface MigrationRoute {
 /** View theme — the four narrative perspectives */
 export type ViewTheme = 'chronology' | 'turmoil' | 'politics' | 'art'
 
+/** Year-level summary extracted from the original chronology */
+export interface YearSummary {
+  year: number
+  ganzhi: string
+  locations: { name: string; coords: [number, number] }[]
+  primaryLocation: string | null
+  text: string
+}
+
 export interface BinhongData {
   metadata: {
     subject: string
@@ -126,6 +135,7 @@ export interface BinhongData {
   historyContext: HistoryContext[]
   politicalProfiles: PersonPoliticalProfile[]
   migrationRoutes: MigrationRoute[]
+  yearSummaries: YearSummary[]
 }
 
 export type ActiveMode = 'timeline' | 'person' | 'geography' | 'idle'

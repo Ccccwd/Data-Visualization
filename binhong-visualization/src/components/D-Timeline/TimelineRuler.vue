@@ -102,9 +102,9 @@ const activeWaveDot = computed(() => {
 
 // ═══ View-dependent tick logic ═══
 function isTickDimmed(year: number): boolean {
-  if (viewTheme.value === 'turmoil') {
-    return !store.warYears.has(year)
-  }
+  if (viewTheme.value === 'turmoil') return !store.warYears.has(year)
+  if (viewTheme.value === 'politics') return !store.politicalYears.has(year)
+  if (viewTheme.value === 'art') return !store.artMilestoneYears.has(year)
   return false
 }
 
@@ -218,27 +218,27 @@ const viewTabs: { theme: ViewTheme; label: string }[] = [
 
 .view-tab {
   background: none; border: none; cursor: pointer;
-  padding: 5px 4px; position: relative; outline: none;
+  padding: 6px 4px; position: relative; outline: none;
   display: flex; align-items: center; justify-content: center;
   transition: all 0.4s ease;
   border-left: 2px solid transparent;
 
   &__text {
-    font-family: $font-label; font-size: 11px;
+    font-family: $font-label; font-size: 12px;
     letter-spacing: 2px;
-    color: $ink-dan; opacity: 0.5;
+    color: $ink-zhong; opacity: 0.55;
     transition: all 0.4s ease;
     white-space: nowrap;
   }
 
   &.active {
     border-left-color: $cinnabar;
-    .view-tab__text { color: $cinnabar; opacity: 0.85; font-weight: 600; }
+    .view-tab__text { color: $cinnabar; opacity: 0.9; font-weight: 600; }
   }
 
   &:not(.active):hover {
-    .view-tab__text { color: $ink-zhong; opacity: 0.7; }
-    border-left-color: rgba($ink-dan, 0.3);
+    .view-tab__text { color: $ink-nong; opacity: 0.75; }
+    border-left-color: rgba($ink-dan, 0.4);
   }
 }
 

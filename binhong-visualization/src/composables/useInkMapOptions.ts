@@ -45,7 +45,15 @@ type LabelPosition = 'top' | 'bottom' | 'left' | 'right'
  * Assign label positions to avoid overlap.
  * Uses a greedy algorithm: process locations from most important to least,
  * and pick the position that minimizes overlap with already-placed labels.
+ * Known clusters get forced positions to avoid overlap.
  */
+
+// Forced label positions for known geographic clusters
+const FORCED_POSITIONS: Record<string, LabelPosition> = {
+  '徽州': 'left',
+  '潭渡': 'top',
+  '歙县': 'right',
+}
 function resolveLabelPositions(locations: GeoLocation[]): Map<string, LabelPosition> {
   const POSITIONS: LabelPosition[] = ['bottom', 'right', 'left', 'top']
   const result = new Map<string, LabelPosition>()
@@ -78,6 +86,14 @@ function resolveLabelPositions(locations: GeoLocation[]): Map<string, LabelPosit
   const sorted = [...locations].sort((a, b) => b.mentionCount - a.mentionCount)
 
   for (const loc of sorted) {
+    // Use forced position for known clusters if available
+    const forced = FORCED_POSITIONS[loc.name]
+    if (forced) {
+      result.set(loc.name, forced)
+      placed.push(labelRect(loc.coords, forced, loc.name))
+      continue
+    }
+
     let bestPos: LabelPosition = 'bottom'
     let minCollisions = Infinity
 
@@ -105,11 +121,10 @@ export function buildInkMapOptions(
   allLocations: GeoLocation[],
   activeLocations: { name: string; coords: [number, number] | null }[],
   selectedLocation: string | null,
-  activeEntry: Entry | null,
+  _activeEntry: Entry | null,
   _filteredEntries: Entry[],
   provinceNames?: string[],
-  viewTheme: 'chronology' | 'turmoil' | 'politics' | 'art' = 'chronology',
-  migrationRoutes: any[] = []
+  _viewTheme: 'chronology' | 'turmoil' | 'politics' | 'art' = 'chronology'
 ): EChartsOption {
   const activeNameSet = new Set(activeLocations.map(l => l.name))
 
@@ -186,21 +201,17 @@ export function buildInkMapOptions(
     effect: { show: false },
   }))
 
-  // Active route segments
+  // Active route segments — use activeLocations (year summary or entries)
   let activeRouteSeries: any = null
-  if (activeEntry) {
-    // Filter to valid coords within China bounds
-    const validLocs = activeEntry.locations.filter(l =>
+  {
+    const validLocs = activeLocations.filter(l =>
       l.coords && l.coords[0] >= 73 && l.coords[0] <= 135 && l.coords[1] >= 18 && l.coords[1] <= 53
-    )
+    ) as { name: string; coords: [number, number] }[]
     if (validLocs.length >= 2) {
       const segments: { coords: [number, number][] }[] = []
       for (let i = 0; i < validLocs.length - 1; i++) {
         segments.push({
-          coords: [
-            validLocs[i].coords as [number, number],
-            validLocs[i + 1].coords as [number, number],
-          ],
+          coords: [validLocs[i].coords, validLocs[i + 1].coords],
         })
       }
       activeRouteSeries = {
@@ -230,16 +241,24 @@ export function buildInkMapOptions(
     }
   }
 
-  // Determine flyTo target
+  // Determine flyTo target — fit all active locations in view
   let geoCenter: [number, number] | undefined
   let geoZoom: number | undefined
-  if (activeEntry) {
-    const primaryLoc = activeEntry.locations.find(l => l.name === activeEntry.primaryLocation)
-    const firstLoc = activeEntry.locations[0]
-    const target = primaryLoc?.coords || firstLoc?.coords
-    if (target) {
-      geoCenter = target
+  {
+    const validActive = activeLocations.filter(l => l.coords)
+    if (validActive.length === 1) {
+      geoCenter = validActive[0].coords!
       geoZoom = 5
+    } else if (validActive.length >= 2) {
+      const lngs = validActive.map(l => l.coords![0])
+      const lats = validActive.map(l => l.coords![1])
+      const minLng = Math.min(...lngs), maxLng = Math.max(...lngs)
+      const minLat = Math.min(...lats), maxLat = Math.max(...lats)
+      geoCenter = [(minLng + maxLng) / 2, (minLat + maxLat) / 2]
+      const span = Math.max(maxLng - minLng, maxLat - minLat)
+      // China spans ~62° longitude at zoom 1.15; compute zoom to fit with padding
+      const requiredZoom = Math.max(1.15, Math.min(8, (62 / (span * 2.0)) * 1.15))
+      geoZoom = requiredZoom
     }
   }
 
@@ -255,73 +274,6 @@ export function buildInkMapOptions(
     ...bgLineSeries,
     ...(activeRouteSeries ? [activeRouteSeries] : []),
   ]
-
-  // ═══ Migration routes (turmoil view) ═══
-  if (viewTheme === 'turmoil' && migrationRoutes.length > 0) {
-    migrationRoutes.forEach((route: any) => {
-      if (route.waypoints.length >= 2) {
-        const segments: { coords: [number, number][] }[] = []
-        for (let i = 0; i < route.waypoints.length - 1; i++) {
-          segments.push({ coords: [route.waypoints[i], route.waypoints[i + 1]] })
-        }
-        series.push({
-          type: 'lines' as const,
-          coordinateSystem: 'geo',
-          geoIndex: 0,
-          zlevel: 2,
-          silent: true,
-          polyline: false,
-          data: segments,
-          lineStyle: {
-            color: 'rgba(184,58,46,0.5)',
-            width: 2.5,
-            type: 'dashed' as const,
-            opacity: 0.7,
-            curveness: 0.2,
-          },
-          effect: {
-            show: true,
-            period: 8,
-            trailLength: 0.4,
-            symbol: 'circle',
-            symbolSize: 4,
-            color: '#B83A2E',
-          },
-        })
-      }
-      // Single-point stay marker (like 滞留北平)
-      if (route.waypoints.length === 1) {
-        series.push({
-          type: 'effectScatter' as const,
-          coordinateSystem: 'geo',
-          geoIndex: 0,
-          zlevel: 3,
-          silent: true,
-          showEffectOn: 'render',
-          rippleEffect: { brushType: 'stroke', scale: 6, period: 5 },
-          data: [{
-            name: route.label,
-            value: [...route.waypoints[0], 1],
-            symbolSize: 20,
-            itemStyle: {
-              color: 'rgba(74,67,58,0.15)',
-              shadowBlur: 25,
-              shadowColor: 'rgba(74,67,58,0.3)',
-            },
-            label: {
-              show: true,
-              position: 'top' as const,
-              formatter: route.label,
-              color: 'rgba(74,67,58,0.6)',
-              fontSize: 11,
-              fontFamily: 'ZCOOL XiaoWei, serif',
-              distance: 12,
-            },
-          }],
-        })
-      }
-    })
-  }
 
   // ═══ Scatter + effectScatter (always present) ═══
   series.push(
