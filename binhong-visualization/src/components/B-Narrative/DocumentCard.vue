@@ -285,8 +285,8 @@ watch(() => store.activeEntry, () => {
 }
 
 .doc-era-context__label {
-  font-family: $font-label; font-size: 11px;
-  color: rgba($cinnabar, 0.7); letter-spacing: 2px; margin-right: 6px;
+  font-family: $font-sans; font-size: 12px; font-weight: 500;
+  color: rgba($cinnabar, 0.75); letter-spacing: 3px; margin-right: 8px;
   display: inline-block;
 }
 

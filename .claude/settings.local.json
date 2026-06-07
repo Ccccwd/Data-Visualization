@@ -3,7 +3,9 @@
     "allow": [
       "Bash(python3 -c ' *)",
       "Bash(python -c ' *)",
-      "Bash(npm install *)"
+      "Bash(npm install *)",
+      "Bash(npx vue-tsc *)",
+      "Bash(npm run *)"
     ]
   }
 }
