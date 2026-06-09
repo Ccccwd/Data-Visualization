@@ -205,29 +205,12 @@ export const useGlobalStore = defineStore('global', () => {
   }
 
   function selectPerson(person: string) {
+    // The graph only shows people from activePeople (current year's text).
+    // So any person clicked is guaranteed to be in the current year.
+    // Just highlight them — no year jump needed.
     selectedPerson.value = person
     activeMode.value = 'person'
     selectedEntryIndex.value = 0
-
-    // Auto-derive the most frequent year for timeline snap
-    const personEntries = data.entries.filter(e => e.people.includes(person))
-    if (personEntries.length > 0) {
-      const yearCounts = new Map<number, number>()
-      personEntries.forEach(e => {
-        if (e.year !== null) {
-          yearCounts.set(e.year, (yearCounts.get(e.year) || 0) + 1)
-        }
-      })
-      let maxYear = 0
-      let maxCount = 0
-      yearCounts.forEach((count, year) => {
-        if (count > maxCount) {
-          maxCount = count
-          maxYear = year
-        }
-      })
-      selectedYear.value = maxYear || null
-    }
   }
 
   function selectLocation(location: string) {

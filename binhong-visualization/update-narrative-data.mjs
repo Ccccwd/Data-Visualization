@@ -4,7 +4,7 @@ const data = JSON.parse(readFileSync('src/data/binhong_data.json', 'utf8'))
 
 // Add isArtMilestone to existing entries
 const artMilestoneYears = new Set([1885, 1905, 1919, 1923, 1935, 1945, 1955])
-data.historyContext.forEach((h: any) => {
+data.historyContext.forEach((h) => {
   h.isArtMilestone = artMilestoneYears.has(h.year)
 })
 
@@ -69,7 +69,7 @@ const newEntries = [
 ]
 
 data.historyContext.push(...newEntries)
-data.historyContext.sort((a: any, b: any) => a.year - b.year)
+data.historyContext.sort((a, b) => a.year - b.year)
 
 writeFileSync('src/data/binhong_data.json', JSON.stringify(data, null, 2), 'utf8')
 console.log(`Added ${newEntries.length} entries, total ${data.historyContext.length} historyContext items`)

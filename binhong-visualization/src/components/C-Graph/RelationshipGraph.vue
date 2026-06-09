@@ -127,7 +127,7 @@ function buildGraphOptions(people: string[], selectedPerson: string | null) {
 
     // Spoke nodes
     const isActive = isSelected || (selectedPerson && info?.connections?.[selectedPerson])
-    const symbolSize = Math.max(22, Math.min(38, count * 2 + 14))
+    const symbolSize = Math.max(26, Math.min(44, count * 2 + 18))
 
     if (isPoliticsView.value) {
       const affiliation = politicalMap.value.get(person) || 'apolitical'
@@ -145,8 +145,8 @@ function buildGraphOptions(people: string[], selectedPerson: string | null) {
           ...(isSelected ? { borderColor: pigment.center, borderWidth: 1.5 } : {}),
         },
         label: {
-          show: true, fontSize: isSelected ? 12 : 10,
-          color: isActive ? pigment.center : 'rgba(42,37,32,0.75)',
+          show: true, fontSize: isSelected ? 13 : 11,
+          color: isActive ? pigment.center : 'rgba(42,37,32,0.9)',
           fontFamily: 'Noto Serif SC, serif',
           ...(isSelected ? { fontWeight: '600' } : {}),
         },
@@ -164,8 +164,8 @@ function buildGraphOptions(people: string[], selectedPerson: string | null) {
           ...(isSelected ? { borderColor: '#B83A2E', borderWidth: 1.5 } : {}),
         },
         label: {
-          show: true, fontSize: isSelected ? 12 : 10,
-          color: isActive ? '#B83A2E' : 'rgba(42,37,32,0.8)',
+          show: true, fontSize: isSelected ? 13 : 11,
+          color: isActive ? '#B83A2E' : 'rgba(42,37,32,0.95)',
           fontFamily: 'Noto Serif SC, serif',
           ...(isSelected ? { fontWeight: '600' } : {}),
         },
