@@ -51449,78 +51449,927 @@
   "politicalProfiles": [
     {
       "name": "于右任",
-      "affiliation": "revolutionary",
-      "note": "同盟会元老，后任国民政府监察院长，书法大家"
+      "affiliation": "revolutionary"
     },
     {
       "name": "蔡元培",
-      "affiliation": "reformist",
-      "note": "维新思想启蒙者，北京大学校长，新文化运动领袖"
+      "affiliation": "reformist"
     },
     {
       "name": "林散之",
-      "affiliation": "leftist",
-      "note": "黄宾虹弟子，新中国后任全国政协委员"
+      "affiliation": "leftist"
     },
     {
       "name": "李可染",
-      "affiliation": "leftist",
-      "note": "新中国主流山水画家，变革传统绘画的代表"
+      "affiliation": "leftist"
     },
     {
       "name": "溥儒",
-      "affiliation": "traditionalist",
-      "note": "清皇族后裔，恭亲王之孙，\"旧王孙\"自居"
+      "affiliation": "traditionalist"
     },
     {
       "name": "陈去病",
-      "affiliation": "revolutionary",
-      "note": "南社创始人之一，反清革命文学团体领袖"
+      "affiliation": "revolutionary"
     },
     {
       "name": "柳亚子",
-      "affiliation": "revolutionary",
-      "note": "南社社长，反清革命诗人，后倾向左翼"
+      "affiliation": "revolutionary"
     },
     {
       "name": "邓实",
-      "affiliation": "revolutionary",
-      "note": "国粹保存会核心人物，《国粹学报》创办者"
+      "affiliation": "revolutionary"
     },
     {
       "name": "陈师曾",
-      "affiliation": "reformist",
-      "note": "中国画学研究会发起人，倡导文人画复兴"
+      "affiliation": "reformist"
     },
     {
       "name": "傅雷",
-      "affiliation": "reformist",
-      "note": "艺术评论家、翻译家，黄宾虹一生\"最大知己\""
+      "affiliation": "reformist"
     },
     {
       "name": "齐白石",
-      "affiliation": "apolitical",
-      "note": "以花鸟画著称，与黄宾虹并称\"南黄北齐\""
+      "affiliation": "apolitical"
     },
     {
       "name": "张大千",
-      "affiliation": "apolitical",
-      "note": "仿古画名家，后旅居海外"
+      "affiliation": "apolitical"
     },
     {
       "name": "潘天寿",
-      "affiliation": "leftist",
-      "note": "新中国美术学院教育体系的奠基者之一"
+      "affiliation": "leftist"
     },
     {
       "name": "陈叔通",
-      "affiliation": "kmt",
-      "note": "民国政要，后参加新中国政治协商会议"
+      "affiliation": "kmt"
     },
     {
       "name": "夏衍",
-      "affiliation": "leftist",
-      "note": "左翼文化运动领导人，新中国文化部要员"
+      "affiliation": "leftist"
+    },
+    {
+      "name": "黄節",
+      "affiliation": "revolutionary"
+    },
+    {
+      "name": "晦聞",
+      "affiliation": "revolutionary"
+    },
+    {
+      "name": "亞子",
+      "affiliation": "revolutionary"
+    },
+    {
+      "name": "章太炎",
+      "affiliation": "revolutionary"
+    },
+    {
+      "name": "陳去病",
+      "affiliation": "revolutionary"
+    },
+    {
+      "name": "鄧實",
+      "affiliation": "revolutionary"
+    },
+    {
+      "name": "秋枚",
+      "affiliation": "revolutionary"
+    },
+    {
+      "name": "元培",
+      "affiliation": "reformist"
+    },
+    {
+      "name": "陳師曾",
+      "affiliation": "reformist"
+    },
+    {
+      "name": "師曾",
+      "affiliation": "reformist"
+    },
+    {
+      "name": "沈尹默",
+      "affiliation": "reformist"
+    },
+    {
+      "name": "居素",
+      "affiliation": "reformist"
+    },
+    {
+      "name": "黄居素",
+      "affiliation": "reformist"
+    },
+    {
+      "name": "梁啟超",
+      "affiliation": "reformist"
+    },
+    {
+      "name": "康有為",
+      "affiliation": "reformist"
+    },
+    {
+      "name": "陳銘樞",
+      "affiliation": "kmt"
+    },
+    {
+      "name": "李濟深",
+      "affiliation": "kmt"
+    },
+    {
+      "name": "陳叔通",
+      "affiliation": "kmt"
+    },
+    {
+      "name": "伯鈞",
+      "affiliation": "leftist"
+    },
+    {
+      "name": "廖仲宣",
+      "affiliation": "kmt"
+    },
+    {
+      "name": "郭沫若",
+      "affiliation": "leftist"
+    },
+    {
+      "name": "潘天壽",
+      "affiliation": "leftist"
+    },
+    {
+      "name": "老舍",
+      "affiliation": "leftist"
+    },
+    {
+      "name": "茅盾",
+      "affiliation": "leftist"
+    },
+    {
+      "name": "巴金",
+      "affiliation": "leftist"
+    },
+    {
+      "name": "沈曾植",
+      "affiliation": "traditionalist"
+    },
+    {
+      "name": "昌碩",
+      "affiliation": "traditionalist"
+    },
+    {
+      "name": "朱祖謀",
+      "affiliation": "traditionalist"
+    },
+    {
+      "name": "彊村",
+      "affiliation": "traditionalist"
+    },
+    {
+      "name": "金城",
+      "affiliation": "traditionalist"
+    },
+    {
+      "name": "農髯",
+      "affiliation": "traditionalist"
+    },
+    {
+      "name": "蒲伯英",
+      "affiliation": "traditionalist"
+    },
+    {
+      "name": "大千",
+      "affiliation": "traditionalist"
+    },
+    {
+      "name": "一亭",
+      "affiliation": "kmt"
+    },
+    {
+      "name": "善孖",
+      "affiliation": "traditionalist"
+    },
+    {
+      "name": "亞塵",
+      "affiliation": "reformist"
+    },
+    {
+      "name": "公展",
+      "affiliation": "reformist"
+    },
+    {
+      "name": "甘園",
+      "affiliation": "traditionalist"
+    },
+    {
+      "name": "柱尊",
+      "affiliation": "reformist"
+    },
+    {
+      "name": "王秋湄",
+      "affiliation": "reformist"
+    },
+    {
+      "name": "曼青",
+      "affiliation": "kmt"
+    },
+    {
+      "name": "谷雛",
+      "affiliation": "traditionalist"
+    },
+    {
+      "name": "張虹",
+      "affiliation": "traditionalist"
+    },
+    {
+      "name": "哲夫",
+      "affiliation": "revolutionary"
+    },
+    {
+      "name": "丹林",
+      "affiliation": "reformist"
+    },
+    {
+      "name": "沙孟海",
+      "affiliation": "traditionalist"
+    },
+    {
+      "name": "齊白石",
+      "affiliation": "apolitical"
+    },
+    {
+      "name": "張大千",
+      "affiliation": "apolitical"
+    },
+    {
+      "name": "吉修",
+      "affiliation": "traditionalist"
+    },
+    {
+      "name": "汪聰",
+      "affiliation": "apolitical"
+    },
+    {
+      "name": "孝文",
+      "affiliation": "apolitical"
+    },
+    {
+      "name": "軼甫",
+      "affiliation": "apolitical"
+    },
+    {
+      "name": "公愚",
+      "affiliation": "apolitical"
+    },
+    {
+      "name": "李平書",
+      "affiliation": "reformist"
+    },
+    {
+      "name": "湯臨澤",
+      "affiliation": "apolitical"
+    },
+    {
+      "name": "高天梅",
+      "affiliation": "revolutionary"
+    },
+    {
+      "name": "半丁",
+      "affiliation": "apolitical"
+    },
+    {
+      "name": "古愚",
+      "affiliation": "reformist"
+    },
+    {
+      "name": "劍華",
+      "affiliation": "apolitical"
+    },
+    {
+      "name": "董作賓",
+      "affiliation": "apolitical"
+    },
+    {
+      "name": "樸安",
+      "affiliation": "reformist"
+    },
+    {
+      "name": "吹萬",
+      "affiliation": "reformist"
+    },
+    {
+      "name": "午昌",
+      "affiliation": "reformist"
+    },
+    {
+      "name": "鳳六",
+      "affiliation": "traditionalist"
+    },
+    {
+      "name": "白山",
+      "affiliation": "apolitical"
+    },
+    {
+      "name": "怒厂",
+      "affiliation": "reformist"
+    },
+    {
+      "name": "輔之",
+      "affiliation": "reformist"
+    },
+    {
+      "name": "陶民",
+      "affiliation": "apolitical"
+    },
+    {
+      "name": "叔平",
+      "affiliation": "traditionalist"
+    },
+    {
+      "name": "士騏",
+      "affiliation": "apolitical"
+    },
+    {
+      "name": "峻之",
+      "affiliation": "apolitical"
+    },
+    {
+      "name": "君珊",
+      "affiliation": "apolitical"
+    },
+    {
+      "name": "宣哲",
+      "affiliation": "traditionalist"
+    },
+    {
+      "name": "秋齋",
+      "affiliation": "traditionalist"
+    },
+    {
+      "name": "白蕉",
+      "affiliation": "traditionalist"
+    },
+    {
+      "name": "非厂",
+      "affiliation": "traditionalist"
+    },
+    {
+      "name": "姚光",
+      "affiliation": "revolutionary"
+    },
+    {
+      "name": "楚青",
+      "affiliation": "revolutionary"
+    },
+    {
+      "name": "映宇",
+      "affiliation": "revolutionary"
+    },
+    {
+      "name": "旭初",
+      "affiliation": "revolutionary"
+    },
+    {
+      "name": "子淵",
+      "affiliation": "revolutionary"
+    },
+    {
+      "name": "雁迅",
+      "affiliation": "revolutionary"
+    },
+    {
+      "name": "春帆",
+      "affiliation": "revolutionary"
+    },
+    {
+      "name": "佩忍",
+      "affiliation": "revolutionary"
+    },
+    {
+      "name": "亞廬",
+      "affiliation": "revolutionary"
+    },
+    {
+      "name": "剛主",
+      "affiliation": "revolutionary"
+    },
+    {
+      "name": "亨頤",
+      "affiliation": "reformist"
+    },
+    {
+      "name": "鄭昶",
+      "affiliation": "reformist"
+    },
+    {
+      "name": "冷月",
+      "affiliation": "reformist"
+    },
+    {
+      "name": "陶冷月",
+      "affiliation": "reformist"
+    },
+    {
+      "name": "无量",
+      "affiliation": "reformist"
+    },
+    {
+      "name": "關良",
+      "affiliation": "reformist"
+    },
+    {
+      "name": "段拭",
+      "affiliation": "reformist"
+    },
+    {
+      "name": "聞韻",
+      "affiliation": "reformist"
+    },
+    {
+      "name": "寄凡",
+      "affiliation": "reformist"
+    },
+    {
+      "name": "衡之",
+      "affiliation": "reformist"
+    },
+    {
+      "name": "子實",
+      "affiliation": "reformist"
+    },
+    {
+      "name": "演生",
+      "affiliation": "reformist"
+    },
+    {
+      "name": "蔚芝",
+      "affiliation": "reformist"
+    },
+    {
+      "name": "孑民",
+      "affiliation": "reformist"
+    },
+    {
+      "name": "馮建吳",
+      "affiliation": "reformist"
+    },
+    {
+      "name": "吳一峰",
+      "affiliation": "reformist"
+    },
+    {
+      "name": "散之",
+      "affiliation": "reformist"
+    },
+    {
+      "name": "奇峰",
+      "affiliation": "kmt"
+    },
+    {
+      "name": "溥泉",
+      "affiliation": "kmt"
+    },
+    {
+      "name": "振華",
+      "affiliation": "kmt"
+    },
+    {
+      "name": "熙宇",
+      "affiliation": "kmt"
+    },
+    {
+      "name": "銘初",
+      "affiliation": "kmt"
+    },
+    {
+      "name": "曉籟",
+      "affiliation": "kmt"
+    },
+    {
+      "name": "澤闋",
+      "affiliation": "kmt"
+    },
+    {
+      "name": "潤之",
+      "affiliation": "leftist"
+    },
+    {
+      "name": "王禮錫",
+      "affiliation": "leftist"
+    },
+    {
+      "name": "十力",
+      "affiliation": "leftist"
+    },
+    {
+      "name": "一浮",
+      "affiliation": "leftist"
+    },
+    {
+      "name": "孟劬",
+      "affiliation": "leftist"
+    },
+    {
+      "name": "瘦鐵",
+      "affiliation": "reformist"
+    },
+    {
+      "name": "叔孺",
+      "affiliation": "reformist"
+    },
+    {
+      "name": "完白",
+      "affiliation": "leftist"
+    },
+    {
+      "name": "辛壺",
+      "affiliation": "kmt"
+    },
+    {
+      "name": "漸江",
+      "affiliation": "traditionalist"
+    },
+    {
+      "name": "待秋",
+      "affiliation": "reformist"
+    },
+    {
+      "name": "玉岑",
+      "affiliation": "kmt"
+    },
+    {
+      "name": "徵白",
+      "affiliation": "kmt"
+    },
+    {
+      "name": "笙伯",
+      "affiliation": "traditionalist"
+    },
+    {
+      "name": "芚公",
+      "affiliation": "traditionalist"
+    },
+    {
+      "name": "仲伊",
+      "affiliation": "traditionalist"
+    },
+    {
+      "name": "明之",
+      "affiliation": "traditionalist"
+    },
+    {
+      "name": "仲山",
+      "affiliation": "traditionalist"
+    },
+    {
+      "name": "春谷",
+      "affiliation": "traditionalist"
+    },
+    {
+      "name": "雪泥",
+      "affiliation": "traditionalist"
+    },
+    {
+      "name": "予藉",
+      "affiliation": "traditionalist"
+    },
+    {
+      "name": "鴻章",
+      "affiliation": "reformist"
+    },
+    {
+      "name": "馮煦",
+      "affiliation": "reformist"
+    },
+    {
+      "name": "鄭文焯",
+      "affiliation": "reformist"
+    },
+    {
+      "name": "潘飛聲",
+      "affiliation": "reformist"
+    },
+    {
+      "name": "蘭史",
+      "affiliation": "reformist"
+    },
+    {
+      "name": "詩孫",
+      "affiliation": "traditionalist"
+    },
+    {
+      "name": "爾雅",
+      "affiliation": "traditionalist"
+    },
+    {
+      "name": "鮑君白",
+      "affiliation": "traditionalist"
+    },
+    {
+      "name": "君白",
+      "affiliation": "traditionalist"
+    },
+    {
+      "name": "林山腴",
+      "affiliation": "traditionalist"
+    },
+    {
+      "name": "山腴",
+      "affiliation": "traditionalist"
+    },
+    {
+      "name": "易大厂",
+      "affiliation": "traditionalist"
+    },
+    {
+      "name": "大厂",
+      "affiliation": "traditionalist"
+    },
+    {
+      "name": "企周",
+      "affiliation": "kmt"
+    },
+    {
+      "name": "馬企周",
+      "affiliation": "kmt"
+    },
+    {
+      "name": "鶴逸",
+      "affiliation": "leftist"
+    },
+    {
+      "name": "費念慈",
+      "affiliation": "traditionalist"
+    },
+    {
+      "name": "黄牧甫",
+      "affiliation": "traditionalist"
+    },
+    {
+      "name": "簡朝亮",
+      "affiliation": "traditionalist"
+    },
+    {
+      "name": "守一",
+      "affiliation": "traditionalist"
+    },
+    {
+      "name": "山農",
+      "affiliation": "traditionalist"
+    },
+    {
+      "name": "天如",
+      "affiliation": "traditionalist"
+    },
+    {
+      "name": "景叔",
+      "affiliation": "traditionalist"
+    },
+    {
+      "name": "楊鐵夫",
+      "affiliation": "traditionalist"
+    },
+    {
+      "name": "徐丹甫",
+      "affiliation": "traditionalist"
+    },
+    {
+      "name": "天遒",
+      "affiliation": "traditionalist"
+    },
+    {
+      "name": "鐵年",
+      "affiliation": "traditionalist"
+    },
+    {
+      "name": "祖貽",
+      "affiliation": "traditionalist"
+    },
+    {
+      "name": "蘇戡",
+      "affiliation": "traditionalist"
+    },
+    {
+      "name": "爾疋",
+      "affiliation": "traditionalist"
+    },
+    {
+      "name": "逸民",
+      "affiliation": "traditionalist"
+    },
+    {
+      "name": "顧佛影",
+      "affiliation": "traditionalist"
+    },
+    {
+      "name": "茀之",
+      "affiliation": "traditionalist"
+    },
+    {
+      "name": "戎生",
+      "affiliation": "traditionalist"
+    },
+    {
+      "name": "竹坪",
+      "affiliation": "traditionalist"
+    },
+    {
+      "name": "西神",
+      "affiliation": "traditionalist"
+    },
+    {
+      "name": "叔子",
+      "affiliation": "traditionalist"
+    },
+    {
+      "name": "寒翁",
+      "affiliation": "traditionalist"
+    },
+    {
+      "name": "子樞",
+      "affiliation": "traditionalist"
+    },
+    {
+      "name": "藏園",
+      "affiliation": "traditionalist"
+    },
+    {
+      "name": "仲均",
+      "affiliation": "traditionalist"
+    },
+    {
+      "name": "疑盦",
+      "affiliation": "traditionalist"
+    },
+    {
+      "name": "王病山",
+      "affiliation": "traditionalist"
+    },
+    {
+      "name": "鶴亭",
+      "affiliation": "traditionalist"
+    },
+    {
+      "name": "均量",
+      "affiliation": "traditionalist"
+    },
+    {
+      "name": "丹斧",
+      "affiliation": "traditionalist"
+    },
+    {
+      "name": "張翰飛",
+      "affiliation": "traditionalist"
+    },
+    {
+      "name": "翰飛",
+      "affiliation": "traditionalist"
+    },
+    {
+      "name": "吳淑娟",
+      "affiliation": "traditionalist"
+    },
+    {
+      "name": "大德",
+      "affiliation": "traditionalist"
+    },
+    {
+      "name": "瞿禪",
+      "affiliation": "traditionalist"
+    },
+    {
+      "name": "獻唐",
+      "affiliation": "traditionalist"
+    },
+    {
+      "name": "般若",
+      "affiliation": "traditionalist"
+    },
+    {
+      "name": "顧飛",
+      "affiliation": "apolitical"
+    },
+    {
+      "name": "路大荒",
+      "affiliation": "apolitical"
+    },
+    {
+      "name": "劉作籌",
+      "affiliation": "apolitical"
+    },
+    {
+      "name": "作籌",
+      "affiliation": "apolitical"
+    },
+    {
+      "name": "景昭",
+      "affiliation": "apolitical"
+    },
+    {
+      "name": "龔熙台",
+      "affiliation": "apolitical"
+    },
+    {
+      "name": "文瑞",
+      "affiliation": "apolitical"
+    },
+    {
+      "name": "秉善",
+      "affiliation": "apolitical"
+    },
+    {
+      "name": "柱常",
+      "affiliation": "apolitical"
+    },
+    {
+      "name": "張秉三",
+      "affiliation": "apolitical"
+    },
+    {
+      "name": "空我",
+      "affiliation": "apolitical"
+    },
+    {
+      "name": "所匯",
+      "affiliation": "apolitical"
+    },
+    {
+      "name": "宗台",
+      "affiliation": "apolitical"
+    },
+    {
+      "name": "立民",
+      "affiliation": "apolitical"
+    },
+    {
+      "name": "海清",
+      "affiliation": "apolitical"
+    },
+    {
+      "name": "獨峰",
+      "affiliation": "apolitical"
+    },
+    {
+      "name": "渠慕",
+      "affiliation": "apolitical"
+    },
+    {
+      "name": "亦樂",
+      "affiliation": "apolitical"
+    },
+    {
+      "name": "自浩",
+      "affiliation": "apolitical"
+    },
+    {
+      "name": "鐘凡",
+      "affiliation": "apolitical"
+    },
+    {
+      "name": "南强",
+      "affiliation": "apolitical"
+    },
+    {
+      "name": "儲南强",
+      "affiliation": "apolitical"
+    },
+    {
+      "name": "陽明",
+      "affiliation": "apolitical"
+    },
+    {
+      "name": "荒木",
+      "affiliation": "apolitical"
+    },
+    {
+      "name": "石冥",
+      "affiliation": "apolitical"
+    },
+    {
+      "name": "萍蓀",
+      "affiliation": "apolitical"
+    },
+    {
+      "name": "怒庵",
+      "affiliation": "apolitical"
+    },
+    {
+      "name": "謙吉",
+      "affiliation": "traditionalist"
+    },
+    {
+      "name": "貞晦",
+      "affiliation": "revolutionary"
+    },
+    {
+      "name": "永康",
+      "affiliation": "apolitical"
+    },
+    {
+      "name": "志舟",
+      "affiliation": "traditionalist"
+    },
+    {
+      "name": "榆生",
+      "affiliation": "traditionalist"
     }
   ],
   "migrationRoutes": [
